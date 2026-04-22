@@ -66,12 +66,13 @@ exports.postCartDecrement = async (req, res, next) => {
 
 exports.postCartDeleteProduct = async (req, res, next) => {
   const prodId = req.body.productId;
-  await req.user.removeFromCart(prodId);
+  const userId = req.user.id;
+  await UserService.removeItemFromCart(prodId, userId);
   res.redirect('/cart');
 };
 
 exports.getOrders = async (req, res, next) => {
-  const orders = await Order.find({ 'user.userId': req.user._id });
+  const orders = await UserService.getOrders(req.user.id);
   res.render('shop/orders', {
     path: '/orders',
     pageTitle: 'Your Orders',
@@ -80,21 +81,8 @@ exports.getOrders = async (req, res, next) => {
 };
 
 exports.postOrder = async (req, res, next) => {
-  const userInfo = await req.user.populate('cart.items.productId');
-  const cartProducts = userInfo.cart.items;
-  const products = cartProducts.map((i) => {
-    return { product: { ...i.productId }, quantity: i.quantity };
-  });
-  const order = new Order({
-    user: {
-      userId: req.user._id,
-      name: req.user.name,
-    },
-    products: products,
-  });
-
-  await order.save();
-  await req.user.clearCart();
+  await UserService.createNewOrder(req.user.id);
+  await UserService.clearCart(req.user.id);
   res.redirect('/orders');
 };
 
