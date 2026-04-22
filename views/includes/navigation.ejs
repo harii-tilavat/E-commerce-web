@@ -1,0 +1,46 @@
+<div class="backdrop fixed inset-0 bg-black/60 backdrop-blur-sm z-40"></div>
+
+<header class="glass sticky top-0 z-30 h-16 border-b border-slate-800/60">
+    <div class="max-w-screen-xl mx-auto h-full px-6 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-2 group">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-400 text-white font-bold text-sm shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">S</span>
+            <span class="font-bold text-lg tracking-tight text-gradient">ShopDark</span>
+        </a>
+
+        <button id="side-menu-toggle" class="md:hidden inline-flex items-center gap-2 text-slate-300 border border-slate-700/70 px-3 py-1.5 rounded-lg text-sm font-medium hover:text-white hover:border-indigo-500/60 hover:bg-indigo-500/10 transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            Menu
+        </button>
+
+        <nav class="hidden md:block">
+            <ul class="flex items-center gap-1 list-none m-0 p-0">
+                <li><a class="<%= path === '/' ? 'text-white bg-indigo-500/15 ring-1 ring-indigo-400/30' : 'text-slate-400 hover:text-white hover:bg-slate-700/40' %> px-3 py-2 rounded-lg text-sm font-medium transition-all block" href="/">Shop</a></li>
+                <li><a class="<%= path === '/products' ? 'text-white bg-indigo-500/15 ring-1 ring-indigo-400/30' : 'text-slate-400 hover:text-white hover:bg-slate-700/40' %> px-3 py-2 rounded-lg text-sm font-medium transition-all block" href="/products">Products</a></li>
+                <li><a class="<%= path === '/cart' ? 'text-white bg-indigo-500/15 ring-1 ring-indigo-400/30' : 'text-slate-400 hover:text-white hover:bg-slate-700/40' %> px-3 py-2 rounded-lg text-sm font-medium transition-all block" href="/cart">Cart</a></li>
+                <li><a class="<%= path === '/orders' ? 'text-white bg-indigo-500/15 ring-1 ring-indigo-400/30' : 'text-slate-400 hover:text-white hover:bg-slate-700/40' %> px-3 py-2 rounded-lg text-sm font-medium transition-all block" href="/orders">Orders</a></li>
+                <li class="ml-2 pl-2 border-l border-slate-700/60">
+                    <a class="<%= path === '/admin/add-product' ? 'text-white bg-indigo-500/15 ring-1 ring-indigo-400/30' : 'text-slate-400 hover:text-white hover:bg-slate-700/40' %> px-3 py-2 rounded-lg text-sm font-medium transition-all block" href="/admin/add-product">Add Product</a>
+                </li>
+                <li><a class="<%= path === '/admin/products' ? 'text-white bg-indigo-500/15 ring-1 ring-indigo-400/30' : 'text-slate-400 hover:text-white hover:bg-slate-700/40' %> px-3 py-2 rounded-lg text-sm font-medium transition-all block" href="/admin/products">Admin</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<nav class="mobile-nav fixed top-0 left-0 h-screen w-72 glass border-r border-slate-800/60 z-50 p-6 shadow-2xl">
+    <div class="flex items-center gap-2 mb-8">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-400 text-white font-bold text-sm shadow-lg shadow-indigo-500/30">S</span>
+        <span class="font-bold text-lg tracking-tight text-gradient">ShopDark</span>
+    </div>
+    <ul class="flex flex-col gap-1 list-none m-0 p-0">
+        <li><a class="<%= path === '/' ? 'text-white bg-indigo-500/15 ring-1 ring-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-slate-700/50' %> px-4 py-2.5 rounded-lg text-sm font-medium transition-all block" href="/">Shop</a></li>
+        <li><a class="<%= path === '/products' ? 'text-white bg-indigo-500/15 ring-1 ring-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-slate-700/50' %> px-4 py-2.5 rounded-lg text-sm font-medium transition-all block" href="/products">Products</a></li>
+        <li><a class="<%= path === '/cart' ? 'text-white bg-indigo-500/15 ring-1 ring-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-slate-700/50' %> px-4 py-2.5 rounded-lg text-sm font-medium transition-all block" href="/cart">Cart</a></li>
+        <li><a class="<%= path === '/orders' ? 'text-white bg-indigo-500/15 ring-1 ring-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-slate-700/50' %> px-4 py-2.5 rounded-lg text-sm font-medium transition-all block" href="/orders">Orders</a></li>
+        <li class="mt-3 pt-3 border-t border-slate-700/60">
+            <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 px-4 mb-1">Admin</p>
+            <a class="<%= path === '/admin/add-product' ? 'text-white bg-indigo-500/15 ring-1 ring-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-slate-700/50' %> px-4 py-2.5 rounded-lg text-sm font-medium transition-all block" href="/admin/add-product">Add Product</a>
+        </li>
+        <li><a class="<%= path === '/admin/products' ? 'text-white bg-indigo-500/15 ring-1 ring-indigo-400/30' : 'text-slate-300 hover:text-white hover:bg-slate-700/50' %> px-4 py-2.5 rounded-lg text-sm font-medium transition-all block" href="/admin/products">Admin Products</a></li>
+    </ul>
+</nav>

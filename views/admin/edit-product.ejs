@@ -1,0 +1,81 @@
+<%- include('../includes/head.ejs') %>
+</head>
+<body class="min-h-screen">
+    <%- include('../includes/navigation.ejs') %>
+    <main class="max-w-screen-xl mx-auto px-6 py-10 fade-in">
+        <div class="max-w-2xl mx-auto">
+            <a href="/admin/products" class="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm mb-6 transition-colors group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                Back to Products
+            </a>
+
+            <div class="mb-6">
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-indigo-300 bg-indigo-500/10 border border-indigo-400/20 px-2.5 py-1 rounded-full mb-3">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                    <% if (editing) { %>Editing<% } else { %>New<% } %>
+                </span>
+                <h1 class="text-white text-3xl font-extrabold tracking-tight">
+                    <% if (editing) { %>Edit Product<% } else { %>Add New Product<% } %>
+                </h1>
+                <p class="text-slate-400 text-sm mt-1">
+                    <% if (editing) { %>Update the product details below<% } else { %>Fill in the details for your new product<% } %>
+                </p>
+            </div>
+
+            <div class="glass rounded-2xl border border-slate-800/60 p-6 sm:p-8 shadow-2xl">
+                <form action="/admin/<% if (editing) { %>edit-product<% } else { %>add-product<% } %>" method="POST" class="flex flex-col gap-5">
+                    <div>
+                        <label for="title" class="block text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Title</label>
+                        <input type="text" name="title" id="title"
+                            value="<% if (editing) { %><%= product.title %><% } %>"
+                            placeholder="Product name"
+                            class="input">
+                    </div>
+
+                    <div>
+                        <label for="imageUrl" class="block text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Image URL</label>
+                        <input type="text" name="imageUrl" id="imageUrl"
+                            value="<% if (editing) { %><%= product.imageUrl %><% } %>"
+                            placeholder="https://example.com/image.jpg"
+                            class="input">
+                    </div>
+
+                    <div>
+                        <label for="price" class="block text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Price</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium pointer-events-none">$</span>
+                            <input type="number" name="price" id="price" step="0.01"
+                                value="<% if (editing) { %><%= product.price %><% } %>"
+                                placeholder="0.00"
+                                class="input !pl-8">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="description" class="block text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Description</label>
+                        <textarea name="description" id="description" rows="4"
+                            placeholder="Describe the product..."
+                            class="input resize-none"><% if (editing) { %><%= product.description %><% } %></textarea>
+                    </div>
+
+                    <% if (editing) { %>
+                        <input type="hidden" value="<%= product._id %>" name="productId">
+                    <% } %>
+
+                    <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                        <a href="/admin/products" class="btn btn-ghost flex-1 sm:flex-none sm:min-w-[8rem]">Cancel</a>
+                        <button type="submit" class="btn btn-primary flex-1 !py-3">
+                            <% if (editing) { %>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Update Product
+                            <% } else { %>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                Add Product
+                            <% } %>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    <%- include('../includes/end.ejs') %>

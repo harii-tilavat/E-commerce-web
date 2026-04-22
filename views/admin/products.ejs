@@ -1,0 +1,61 @@
+<%- include('../includes/head.ejs') %>
+</head>
+<body class="min-h-screen">
+    <%- include('../includes/navigation.ejs') %>
+    <main class="max-w-screen-xl mx-auto px-6 py-10 fade-in">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+            <div>
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-indigo-300 bg-indigo-500/10 border border-indigo-400/20 px-2.5 py-1 rounded-full mb-3">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span> Admin
+                </span>
+                <h1 class="text-white text-3xl font-extrabold tracking-tight">Products</h1>
+                <p class="text-slate-400 text-sm mt-1">Manage your product catalog</p>
+            </div>
+            <a href="/admin/add-product" class="btn btn-primary self-start sm:self-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                Add Product
+            </a>
+        </div>
+
+        <% if (prods.length > 0) { %>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <% for (let product of prods) { %>
+                    <article class="card-hover glass rounded-2xl overflow-hidden flex flex-col group">
+                        <div class="aspect-[4/3] bg-navy-700 overflow-hidden relative">
+                            <img src="<%= product.imageUrl %>" alt="<%= product.title %>" class="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-navy-950/70 via-transparent to-transparent opacity-50"></div>
+                        </div>
+                        <div class="p-4 flex-1 flex flex-col">
+                            <h2 class="text-slate-100 font-semibold text-sm leading-snug line-clamp-1"><%= product.title %></h2>
+                            <p class="text-slate-400 text-xs leading-relaxed line-clamp-2 mt-1.5"><%= product.description %></p>
+                            <div class="mt-auto pt-4">
+                                <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Price</p>
+                                <p class="text-white font-bold text-lg leading-tight">$<%= product.price %></p>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 flex gap-2">
+                            <a href="/admin/edit-product/<%= product._id %>?edit=true" class="btn btn-ghost flex-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                Edit
+                            </a>
+                            <form action="/admin/delete-product" method="POST" class="flex-1">
+                                <input type="hidden" value="<%= product._id %>" name="productId">
+                                <button type="submit" class="btn btn-danger w-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </article>
+                <% } %>
+            </div>
+        <% } else { %>
+            <div class="flex flex-col items-center justify-center min-h-[55vh] text-center glass rounded-3xl py-20 px-8">
+                <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-400/20 flex items-center justify-center text-3xl mb-5">📋</div>
+                <h2 class="text-slate-100 text-2xl font-bold mb-2">No products yet</h2>
+                <p class="text-slate-500 text-sm mb-6">Start by adding your first product.</p>
+                <a href="/admin/add-product" class="btn btn-primary">Add Product</a>
+            </div>
+        <% } %>
+    </main>
+    <%- include('../includes/end.ejs') %>
