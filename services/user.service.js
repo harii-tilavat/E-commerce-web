@@ -2,6 +2,7 @@ const { ObjectId } = require('mongodb');
 const CartItem = require('../models/cart-item');
 const Order = require('../models/order');
 const OrderItem = require('../models/order-item');
+const Product = require('../models/product');
 
 class UserService {
   constructor() {}
@@ -40,8 +41,24 @@ class UserService {
 
   // Orders
   static async getOrders(userId) {
-    const orders = await Order.findAll({ where: { userId: userId } });
-    return orders;
+    const orders = await Order.findAll({ where: { userId: userId }, include: OrderItem });
+    const productIds = orders.flatMap((order) => order.orderItems.map((item) => item.productId));
+    const products = await Product.find({ _id: { $in: productIds } }).lean();
+    const productsMap = new Map();
+    products.forEach((i) => productsMap.set(i._id.toString(), i));
+
+    const updatedOrders = orders.map((order) => {
+      return {
+        ...order.toJSON(),
+        products: order.orderItems.map((item) => {
+          return {
+            ...item.toJSON(),
+            product: productsMap.get(item.productId.toString()),
+          };
+        }),
+      };
+    });
+    return updatedOrders;
   }
 
   static async createNewOrder(userId) {
