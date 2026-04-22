@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
+const UserService = require('../services/user.service');
 
 exports.getProducts = async (req, res, next) => {
   const products = await Product.find();
@@ -30,8 +31,9 @@ exports.getIndex = async (req, res, next) => {
 };
 
 exports.getCart = async (req, res, next) => {
-  const userInfo = await req.user.populate('cart.items.productId');
-  const cartProducts = userInfo.cart.items;
+  // const userInfo = await req.user.populate('cart.items.productId');
+  // const cartProducts = userInfo.cart.items;
+  const cartProducts = [];
   res.render('shop/cart', {
     path: '/cart',
     pageTitle: 'Your Cart',
@@ -41,8 +43,9 @@ exports.getCart = async (req, res, next) => {
 
 exports.postCart = async (req, res, next) => {
   const prodId = req.body.productId;
-  const product = await Product.findById(prodId);
-  await req.user.addToCart(product);
+  const userId = req.user.id;
+
+  await UserService.addProductToCart(prodId, userId);
   res.redirect('/cart');
 };
 
