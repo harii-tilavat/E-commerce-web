@@ -14,6 +14,11 @@ class UserService {
       await newCartItem.save();
     }
   }
+
+  static async getCartItems(userId) {
+    const cartItems = await CartItem.find({ userId: userId }).populate('productId');
+    return cartItems;
+  }
 }
 
 module.exports = UserService;
