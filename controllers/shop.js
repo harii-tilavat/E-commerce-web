@@ -32,6 +32,7 @@ exports.getIndex = async (req, res, next) => {
 
 exports.getCart = async (req, res, next) => {
   const cartProducts = await UserService.getCartItems(req.user.id);
+  // res.json({ cartProducts });
   res.render('shop/cart', {
     path: '/cart',
     pageTitle: 'Your Cart',
@@ -44,6 +45,22 @@ exports.postCart = async (req, res, next) => {
   const userId = req.user.id;
 
   await UserService.addProductToCart(prodId, userId);
+  res.redirect('/cart');
+};
+
+exports.postCartIncrement = async (req, res, next) => {
+  const prodId = req.body.productId;
+  const userId = req.user.id;
+
+  await UserService.incrementCartItem(prodId, userId);
+  res.redirect('/cart');
+};
+
+exports.postCartDecrement = async (req, res, next) => {
+  const prodId = req.body.productId;
+  const userId = req.user.id;
+
+  await UserService.decrementCartItem(prodId, userId);
   res.redirect('/cart');
 };
 

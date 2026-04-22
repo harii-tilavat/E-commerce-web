@@ -19,6 +19,14 @@ class UserService {
     const cartItems = await CartItem.find({ userId: userId }).populate('productId');
     return cartItems;
   }
+
+  static async incrementCartItem(productId, userId) {
+    await CartItem.updateOne({ productId: productId, userId: userId }, { $inc: { quantity: 1 } });
+  }
+
+  static async decrementCartItem(productId, userId) {
+    await CartItem.updateOne({ productId: productId, userId: userId }, { $inc: { quantity: -1 } });
+  }
 }
 
 module.exports = UserService;
