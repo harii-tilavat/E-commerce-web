@@ -13,6 +13,8 @@ app.set('views', path.join(__dirname, 'views'));
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const User = require('./models/user');
+const Order = require('./models/order');
+const OrderItem = require('./models/order-item');
 // const Cart = require('./models/cart');
 // const CartItem = require('./models/cart-item');
 // const Order = require('./models/order');
@@ -22,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(async (req, res, next) => {
-  const user = await User.findById('69e777764dcaffb8b528a7db');
+  const user = await User.findByPk(1);
   req.user = user;
   next();
 });
@@ -64,11 +66,18 @@ app.use(errorController.get404);
 //   .catch((err) => {
 //     console.log(err);
 //   });
+
+User.hasMany(Order);
+Order.belongsTo(User);
+
+Order.hasMany(OrderItem);
+OrderItem.belongsTo(Order);
+
 connectDB().then(async () => {
   console.log('Mongodb connected successfully! 🟢');
-  let user = await User.findById('69e777764dcaffb8b528a7db');
+  let user = await User.findByPk(1);
   if (!user) {
-    user = await User.create({ name: 'Harit', email: 'harit@gmail.com', cart: { items: [] } });
+    user = await User.create({ name: 'Harit', email: 'harit@gmail.com' });
   }
   app.listen(3000, async () => {
     console.log('Server running at http://localhost:3000 🟢');
