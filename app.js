@@ -12,9 +12,9 @@ app.set('views', path.join(__dirname, 'views'));
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
-const User = require('./models/user');
-const Order = require('./models/order');
-const OrderItem = require('./models/order-item');
+const User = require('./models/sql/user');
+const Order = require('./models/sql/order');
+const OrderItem = require('./models/sql/order-item');
 // const Cart = require('./models/cart');
 // const CartItem = require('./models/cart-item');
 // const Order = require('./models/order');

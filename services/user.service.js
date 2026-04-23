@@ -1,8 +1,7 @@
-const { ObjectId } = require('mongodb');
-const CartItem = require('../models/cart-item');
-const Order = require('../models/order');
-const OrderItem = require('../models/order-item');
-const Product = require('../models/product');
+const CartItem = require('../models/mongo/cart-item');
+const Product = require('../models/mongo/product');
+const Order = require('../models/sql/order');
+const OrderItem = require('../models/sql/order-item');
 
 class UserService {
   constructor() {}

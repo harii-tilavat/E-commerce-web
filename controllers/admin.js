@@ -1,4 +1,4 @@
-const Product = require('../models/product');
+const Product = require('../models/mongo/product');
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
@@ -66,6 +66,6 @@ exports.getProducts = async (req, res, next) => {
 
 exports.postDeleteProduct = async (req, res, next) => {
   const prodId = req.body.productId;
-  await Product.deleteById(prodId);
+  await Product.deleteOne({ _id: prodId });
   res.redirect('/admin/products');
 };
