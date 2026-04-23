@@ -14,6 +14,8 @@ app.set('views', path.join(__dirname, 'views'));
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
+
 const User = require('./models/sql/user');
 const Order = require('./models/sql/order');
 const OrderItem = require('./models/sql/order-item');
@@ -33,6 +35,7 @@ app.use(async (req, res, next) => {
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
 app.use(errorController.get404);
 
