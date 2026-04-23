@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 const { Sequelize } = require('sequelize');
 
-const config = {
-  username: 'admin',
-  password: encodeURIComponent('admin@123'),
-};
-const uri = `mongodb+srv://${config.username}:${config.password}@cluster0.nnjei7r.mongodb.net/e_commerce?appName=Cluster0`;
+const mongoUser = process.env.MONGO_USER;
+const mongoPassword = encodeURIComponent(process.env.MONGO_PASSWORD);
+const mongoCluster = process.env.MONGO_CLUSTER;
+const mongoDb = process.env.MONGO_DB;
+const mongoAppName = process.env.MONGO_APP_NAME;
+
+const uri = `mongodb+srv://${mongoUser}:${mongoPassword}@${mongoCluster}/${mongoDb}?appName=${mongoAppName}`;
 
 const connectMongoDB = async () => {
   try {
@@ -17,10 +19,15 @@ const connectMongoDB = async () => {
   }
 };
 
-const sequelize = new Sequelize('e_commerce', 'root', 'admin@123', {
-  host: 'localhost',
-  dialect: 'mysql',
-});
+const sequelize = new Sequelize(
+  process.env.MYSQL_DB,
+  process.env.MYSQL_USER,
+  process.env.MYSQL_PASSWORD,
+  {
+    host: process.env.MYSQL_HOST,
+    dialect: process.env.MYSQL_DIALECT,
+  }
+);
 
 const connectDB = async () => {
   try {
