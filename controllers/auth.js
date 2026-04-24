@@ -78,3 +78,40 @@ exports.postResetPassword = async (req, res, next) => {
     res.redirect('/reset-password');
   }
 };
+
+exports.getNewPassword = async (req, res, next) => {
+  try {
+    const token = req.params.token;
+    const user = await AuthService.getResetUser(token);
+    if (!user) {
+      req.flash('error', 'Reset link is invalid or has expired.');
+      return res.redirect('/reset-password');
+    }
+    const messages = req.flash('error');
+    res.render('auth/new-password', {
+      pageTitle: 'New Password',
+      path: '/new-password',
+      errorMessage: messages.length ? messages[0] : null,
+      userId: user._id.toString(),
+      resetToken: token,
+    });
+  } catch (error) {
+    console.log('Error => ', error);
+    res.redirect('/reset-password');
+  }
+};
+
+exports.postNewPassword = async (req, res, next) => {
+  const { userId, resetToken, password, confirmPassword } = req.body;
+  if (!password || password !== confirmPassword) {
+    req.flash('error', 'Passwords do not match.');
+    return res.redirect(`/reset-password/${resetToken}`);
+  }
+  try {
+    await AuthService.updatePassword(userId, resetToken, password);
+    res.redirect('/login');
+  } catch (error) {
+    req.flash('error', error?.message || 'Something went wrong. Try again.');
+    res.redirect('/reset-password');
+  }
+};

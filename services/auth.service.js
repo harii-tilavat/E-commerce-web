@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/mongo/user');
+const CommanService = require('./comman.service');
 
 class AuthService {
   constructor() {}
@@ -39,7 +40,29 @@ class AuthService {
     user.resetToken = token;
     user.resetTokenExpiration = Date.now() + 3600000; // 1 hour expiration
     await user.save();
-    console.log('TOKEN : ', token);
+    console.log('RESET LINK : ', `http://localhost:3000/reset-password/${token}`);
+  }
+
+  static async getResetUser(token) {
+    return User.findOne({
+      resetToken: token,
+      resetTokenExpiration: { $gt: Date.now() },
+    });
+  }
+
+  static async updatePassword(userId, token, newPassword) {
+    const user = await User.findOne({
+      _id: userId,
+      resetToken: token,
+      resetTokenExpiration: { $gt: Date.now() },
+    });
+    if (!user) {
+      throw new Error('Reset link is invalid or has expired.');
+    }
+    user.password = await bcrypt.hash(newPassword, 12);
+    user.resetToken = undefined;
+    user.resetTokenExpiration = undefined;
+    await user.save();
   }
 }
 
