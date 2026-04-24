@@ -1,4 +1,5 @@
 const AuthService = require('../services/auth.service');
+const CommanService = require('../services/comman.service');
 
 exports.getAuthLogin = (req, res, next) => {
   const messages = req.flash('error');
@@ -12,7 +13,7 @@ exports.getAuthLogin = (req, res, next) => {
 
 exports.postAuthLogin = async (req, res, next) => {
   try {
-    const user = await AuthService.login(req.body.email, req.body.password);
+    const user = await AuthService.loginUser(req.body.email, req.body.password);
     if (!user) {
       req.flash('error', 'Invalid email or password.');
       return res.redirect('/login');
@@ -50,7 +51,7 @@ exports.postAuthSignup = async (req, res, next) => {
     return res.redirect('/signup');
   }
   try {
-    await AuthService.signup(name, email, password);
+    await AuthService.signupUser(name, email, password);
     res.redirect('/login');
   } catch (err) {
     console.log('Signup error =>', err);
@@ -68,4 +69,12 @@ exports.getResetPassword = (req, res, next) => {
 };
 
 exports.postResetPassword = async (req, res, next) => {
+  try {
+    const email = req.body.email;
+    await AuthService.resetPassword(email);
+    res.redirect('/reset-password');
+  } catch (error) {
+    req.flash('error', error?.message || 'Something went wrong. Try again.');
+    res.redirect('/reset-password');
+  }
 };

@@ -24,6 +24,15 @@ const User = require('./models/mongo/user');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 const store = new MongoDBStore({ uri });
+
+store.on('error', (err) => {
+  console.error('Session store error:', err);
+});
+
+store.on('connected', () => {
+  console.log('Session store connected 🟢');
+});
+
 app.use(
   session({
     secret: 'my secret key',

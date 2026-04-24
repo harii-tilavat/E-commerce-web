@@ -4,7 +4,7 @@ const User = require('../models/mongo/user');
 class AuthService {
   constructor() {}
 
-  static async signup(name, email, password) {
+  static async signupUser(name, email, password) {
     const existing = await User.findOne({ email });
     if (existing) {
       return;
@@ -13,7 +13,7 @@ class AuthService {
     await User.create({ name, email, password: hashedPassword });
   }
 
-  static async login(email, password) {
+  static async loginUser(email, password) {
     const user = await User.findOne({ email });
     if (!user) {
       return null;
@@ -22,7 +22,24 @@ class AuthService {
     if (!isPasswordValid) {
       return null;
     }
-    return user.toObject();
+    const updatedUser = {
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+    };
+    return updatedUser;
+  }
+
+  static async resetPassword(email) {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    const token = CommanService.generateRandomToken();
+    user.resetToken = token;
+    user.resetTokenExpiration = Date.now() + 3600000; // 1 hour expiration
+    await user.save();
+    console.log('TOKEN : ', token);
   }
 }
 
