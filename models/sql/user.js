@@ -10,6 +10,10 @@ const User = sequelize.define('user', {
     type: DataTypes.STRING,
     required: true,
   },
+  password: {
+    type: DataTypes.STRING,
+    required: true,
+  },
 });
 
 module.exports = User;

@@ -38,15 +38,14 @@ app.use(
   }),
 );
 
-app.use((req, res, next) => {
-  res.locals.isAuthenticated = !!(req.session && req.session.user);
+app.use(async (req, res, next) => {
   try {
-    User.findByPk(req.session.user?.id).then((user) => {
-      req.user = user;
-      console.log('Cookies : ', req.get('Cookie'));
-      console.log('Session : ', req.session);
-      next();
-    });
+    const user = await User.findByPk(req.session.user?.id);
+    res.locals.isAuthenticated = !!(req.session && req.session.user);
+    req.user = user;
+    console.log('Cookies : ', req.get('Cookie'));
+    console.log('Session : ', req.session);
+    next();
   } catch (e) {
     console.log('Error=> ', e);
     next();
