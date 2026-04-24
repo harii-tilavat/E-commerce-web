@@ -103,7 +103,7 @@ connectDB().then(async () => {
   if (!user) {
     user = await User.create({ name: 'Harit', email: 'harit@gmail.com' });
   }
-  app.listen(3000, async () => {
+  app.listen(3001, '0.0.0.0', async () => {
     console.log('Server running at http://localhost:3000 🟢');
   });
 });

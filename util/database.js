@@ -28,8 +28,8 @@ const connectDB = async () => {
   try {
     await connectMongoDB();
     console.log('MongoDB connected successfully! 🟢');
-    await sequelize.sync({ force: true });
-    // await sequelize.sync();
+    // await sequelize.sync({ force: true });
+    await sequelize.sync();
     console.log('MySQL connected successfully! 🟢');
   } catch (error) {
     console.log('DB Error ==>>', error);

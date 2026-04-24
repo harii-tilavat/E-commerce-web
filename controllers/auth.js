@@ -10,17 +10,19 @@ exports.getAuthLogin = (req, res, next) => {
 };
 
 exports.postAuthLogin = async (req, res, next) => {
-  // res.setHeader('Set-Cookie', 'loggedIn=true; HttpOnly; Secure; Max-Age=5');
-  // const user = await User.findByPk(1);
-  // req.session.user = user.toJSON();
-  const user = await AuthService.login(req.body.email, req.body.password);
-  if (!user) {
-    return res.redirect('/login');
+  try {
+    const user = await AuthService.login(req.body.email, req.body.password);
+    if (!user) {
+      return res.redirect('/login');
+    }
+    req.session.user = user;
+    req.session.save(() => {
+      res.redirect('/');
+    });
+  } catch (error) {
+    console.log('Error => ', error);
+    res.redirect('/login');
   }
-  req.session.user = user;
-  req.session.save(() => {
-    res.redirect('/');
-  });
 };
 
 exports.getAuthLogout = async (req, res, next) => {
