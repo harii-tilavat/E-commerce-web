@@ -1,4 +1,3 @@
-const User = require('../models/sql/user');
 const AuthService = require('../services/auth.service');
 
 exports.getAuthLogin = (req, res, next) => {

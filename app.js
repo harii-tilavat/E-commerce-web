@@ -19,9 +19,7 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
-const User = require('./models/sql/user');
-const Order = require('./models/sql/order');
-const OrderItem = require('./models/sql/order-item');
+const User = require('./models/mongo/user');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -32,9 +30,6 @@ app.use(
     name: 'sessionId',
     resave: false,
     saveUninitialized: false,
-    // cookie: {
-    //   maxAge: 1000 * 60 * 60 * 24 * 7,
-    // },
     store: store,
   }),
 );
@@ -42,11 +37,10 @@ app.use(flash());
 
 app.use(async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.session.user?.id);
+    const sessionUserId = req.session.user?.id;
+    const user = sessionUserId ? await User.findById(sessionUserId) : null;
     res.locals.isAuthenticated = !!(req.session && req.session.user);
     req.user = user;
-    console.log('Cookies : ', req.get('Cookie'));
-    console.log('Session : ', req.session);
     next();
   } catch (e) {
     console.log('Error=> ', e);
@@ -60,52 +54,14 @@ app.use(authRoutes);
 
 app.use(errorController.get404);
 
-// Relations
-// Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
-// User.hasMany(Product);
-
-// User.hasOne(Cart);
-// Cart.belongsTo(User);
-
-// Cart.belongsToMany(Product, { through: CartItem });
-// Product.belongsToMany(Cart, { through: CartItem });
-
-// Order.belongsTo(User);
-// User.hasMany(Order);
-
-// Order.belongsToMany(Product, { through: OrderItem });
-// Product.belongsToMany(Order, { through: OrderItem });
-
-// sequelize
-//   .sync()
-//   .then(async () => {
-//     let user = await User.findByPk(1);
-//     if (!user) {
-//       user = await User.create({ name: 'Suhag', email: 'test@test.com' });
-//       await user.createCart();
-//     }
-//     console.log('\nData base connected successfully! ');
-//     app.listen(3000, () => {
-//       console.log('Server running at http://localhost:3000 🟢');
-//     });
-//   })
-//   .catch((err) => {
-//     console.log(err);
-//   });
-
-User.hasMany(Order);
-Order.belongsTo(User);
-
-Order.hasMany(OrderItem);
-OrderItem.belongsTo(Order);
-
-connectDB().then(async () => {
-  console.log('Mongodb connected successfully! 🟢');
-  let user = await User.findByPk(1);
-  if (!user) {
-    user = await User.create({ name: 'Harit', email: 'harit@gmail.com' });
-  }
-  app.listen(3000, async () => {
-    console.log('Server running at http://localhost:3000 🟢');
+connectDB()
+  .then(() => {
+    console.log('Mongodb connected successfully! 🟢');
+    app.listen(3000, () => {
+      console.log('Server running at http://localhost:3000 🟢');
+    });
+  })
+  .catch((err) => {
+    console.log('DB connect failed:', err);
+    process.exit(1);
   });
-});

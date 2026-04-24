@@ -1,79 +1,63 @@
 const CartItem = require('../models/mongo/cart-item');
-const Product = require('../models/mongo/product');
-const Order = require('../models/sql/order');
-const OrderItem = require('../models/sql/order-item');
+const Order = require('../models/mongo/order');
 
 class UserService {
   constructor() {}
 
   static async addProductToCart(productId, userId) {
-    const existingCartItem = await CartItem.findOne({ userId: userId, productId: productId });
+    const existingCartItem = await CartItem.findOne({ userId, productId });
     if (existingCartItem) {
       existingCartItem.quantity += 1;
       await existingCartItem.save();
     } else {
-      const newCartItem = new CartItem({ userId: userId, quantity: 1, productId: productId });
+      const newCartItem = new CartItem({ userId, quantity: 1, productId });
       await newCartItem.save();
     }
   }
 
   static async getCartItems(userId) {
-    const cartItems = await CartItem.find({ userId: userId }).populate('productId');
+    const cartItems = await CartItem.find({ userId }).populate('productId');
     return cartItems;
   }
 
   static async incrementCartItem(productId, userId) {
-    await CartItem.updateOne({ productId: productId, userId: userId }, { $inc: { quantity: 1 } });
+    await CartItem.updateOne({ productId, userId }, { $inc: { quantity: 1 } });
   }
 
   static async decrementCartItem(productId, userId) {
-    await CartItem.updateOne({ productId: productId, userId: userId }, { $inc: { quantity: -1 } });
+    await CartItem.updateOne({ productId, userId }, { $inc: { quantity: -1 } });
   }
 
   static async removeItemFromCart(productId, userId) {
-    await CartItem.deleteOne({ productId: productId, userId: userId });
+    await CartItem.deleteOne({ productId, userId });
   }
 
   static async clearCart(userId) {
-    await CartItem.deleteMany({ userId: userId });
+    await CartItem.deleteMany({ userId });
   }
 
   // Orders
   static async getOrders(userId) {
-    const orders = await Order.findAll({ where: { userId: userId }, include: OrderItem });
-    const productIds = orders.flatMap((order) => order.orderItems.map((item) => item.productId));
-    const products = await Product.find({ _id: { $in: productIds } }).lean();
-    const productsMap = new Map();
-    products.forEach((i) => productsMap.set(i._id.toString(), i));
-
-    const updatedOrders = orders.map((order) => {
+    const orders = await Order.find({ userId }).populate('items.productId');
+    return orders.map((order) => {
+      const obj = order.toObject({ virtuals: true });
       return {
-        ...order.toJSON(),
-        products: order.orderItems.map((item) => {
-          return {
-            ...item.toJSON(),
-            product: productsMap.get(item.productId.toString()),
-          };
-        }),
+        ...obj,
+        products: order.items.map((i) => ({
+          quantity: i.quantity,
+          product: i.productId,
+        })),
       };
     });
-    return updatedOrders;
   }
 
   static async createNewOrder(userId) {
-    const cartItems = await CartItem.find({ userId: userId }).lean();
-    if (cartItems.length) {
-      const order = await Order.create({ userId: userId });
-      const orderId = order.id;
-      const orderItems = cartItems.map((item) => {
-        return {
-          orderId: orderId,
-          productId: item.productId.toString(),
-          quantity: item.quantity,
-        };
-      });
-      await OrderItem.bulkCreate(orderItems);
-    }
+    const cartItems = await CartItem.find({ userId }).lean();
+    if (!cartItems.length) return;
+    await Order.create({
+      userId,
+      items: cartItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+    });
   }
 }
 

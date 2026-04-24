@@ -18,7 +18,8 @@ const productSchema = new Schema({
     required: true,
   },
   userId: {
-    type: Number,
+    type: Schema.Types.ObjectId,
+    ref: 'User',
     required: true,
   },
 });

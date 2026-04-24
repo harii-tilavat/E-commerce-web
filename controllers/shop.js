@@ -1,5 +1,4 @@
 const Product = require('../models/mongo/product');
-const Order = require('../models/sql/order');
 const UserService = require('../services/user.service');
 
 exports.getProducts = async (req, res, next) => {
