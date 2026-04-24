@@ -4,9 +4,11 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 const errorController = require('./controllers/error');
-const { connectDB } = require('./util/database');
+const { connectDB, uri } = require('./util/database');
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -19,18 +21,36 @@ const authRoutes = require('./routes/auth');
 const User = require('./models/sql/user');
 const Order = require('./models/sql/order');
 const OrderItem = require('./models/sql/order-item');
-// const Cart = require('./models/cart');
-// const CartItem = require('./models/cart-item');
-// const Order = require('./models/order');
-// const OrderItem = require('./models/order-item');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+const store = new MongoDBStore({ uri });
+app.use(
+  session({
+    secret: 'my secret key',
+    name: 'sessionId',
+    resave: false,
+    saveUninitialized: false,
+    // cookie: {
+    //   maxAge: 1000 * 60 * 60 * 24 * 7,
+    // },
+    store: store,
+  }),
+);
 
-app.use(async (req, res, next) => {
-  const user = await User.findByPk(1);
-  req.user = user;
-  next();
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = !!(req.session && req.session.user);
+  try {
+    User.findByPk(req.session.user?.id).then((user) => {
+      req.user = user;
+      console.log('Cookies : ', req.get('Cookie'));
+      console.log('Session : ', req.session);
+      next();
+    });
+  } catch (e) {
+    console.log('Error=> ', e);
+    next();
+  }
 });
 
 app.use('/admin', adminRoutes);
