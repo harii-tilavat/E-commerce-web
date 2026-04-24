@@ -20,6 +20,7 @@ const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
 const User = require('./models/mongo/user');
+const requireLogin = require('./middlewares/auth.middleware');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -57,7 +58,7 @@ app.use(async (req, res, next) => {
   }
 });
 
-app.use('/admin', adminRoutes);
+app.use('/admin', requireLogin, adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 

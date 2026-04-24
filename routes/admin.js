@@ -1,6 +1,8 @@
 const express = require('express');
 
 const adminController = require('../controllers/admin');
+const validate = require('../middlewares/validate.middleware');
+const createProductSchema = require('../validations/createProductSchema');
 
 const router = express.Router();
 
@@ -11,7 +13,7 @@ router.get('/add-product', adminController.getAddProduct);
 router.get('/products', adminController.getProducts);
 
 // /admin/add-product => POST
-router.post('/add-product', adminController.postAddProduct);
+router.post('/add-product', validate({ body: createProductSchema }), adminController.postAddProduct);
 
 router.get('/edit-product/:productId', adminController.getEditProduct);
 
