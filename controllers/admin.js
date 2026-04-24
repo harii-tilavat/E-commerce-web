@@ -44,13 +44,15 @@ exports.getEditProduct = async (req, res, next) => {
 
 exports.postEditProduct = async (req, res, next) => {
   const prodId = req.body.productId;
+  const userId = req.user.id;
+
   const updatedProduct = {
     title: req.body.title,
     price: req.body.price,
     imageUrl: req.body.imageUrl,
     description: req.body.description,
   };
-  await Product.findByIdAndUpdate(prodId, updatedProduct);
+  await Product.updateOne({ _id: prodId, userId: userId }, updatedProduct);
   res.redirect('/admin/products');
 };
 
@@ -66,6 +68,6 @@ exports.getProducts = async (req, res, next) => {
 
 exports.postDeleteProduct = async (req, res, next) => {
   const prodId = req.body.productId;
-  await Product.deleteOne({ _id: prodId });
+  await Product.deleteOne({ _id: prodId, userId: req.user.id });
   res.redirect('/admin/products');
 };
