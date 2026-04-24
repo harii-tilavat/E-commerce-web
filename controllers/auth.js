@@ -2,10 +2,12 @@ const User = require('../models/sql/user');
 const AuthService = require('../services/auth.service');
 
 exports.getAuthLogin = (req, res, next) => {
+  const messages = req.flash('error');
   res.render('auth/login', {
     pageTitle: 'Login',
     path: '/login',
     editing: false,
+    errorMessage: messages.length ? messages[0] : null,
   });
 };
 
@@ -13,6 +15,7 @@ exports.postAuthLogin = async (req, res, next) => {
   try {
     const user = await AuthService.login(req.body.email, req.body.password);
     if (!user) {
+      req.flash('error', 'Invalid email or password.');
       return res.redirect('/login');
     }
     req.session.user = user;
@@ -21,6 +24,7 @@ exports.postAuthLogin = async (req, res, next) => {
     });
   } catch (error) {
     console.log('Error => ', error);
+    req.flash('error', 'Something went wrong. Try again.');
     res.redirect('/login');
   }
 };

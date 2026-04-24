@@ -5,6 +5,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const flash = require('connect-flash');
 const MongoDBStore = require('connect-mongodb-session')(session);
 
 const errorController = require('./controllers/error');
@@ -37,6 +38,7 @@ app.use(
     store: store,
   }),
 );
+app.use(flash());
 
 app.use(async (req, res, next) => {
   try {
@@ -103,7 +105,7 @@ connectDB().then(async () => {
   if (!user) {
     user = await User.create({ name: 'Harit', email: 'harit@gmail.com' });
   }
-  app.listen(3001, '0.0.0.0', async () => {
+  app.listen(3000, async () => {
     console.log('Server running at http://localhost:3000 🟢');
   });
 });
