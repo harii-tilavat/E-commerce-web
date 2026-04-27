@@ -1,6 +1,4 @@
 const Product = require('../models/mongo/product');
-const ApiError = require('../utils/api-error');
-const { StatusCode } = require('../utils/api-response');
 
 class ProductService {
   constructor() {}
