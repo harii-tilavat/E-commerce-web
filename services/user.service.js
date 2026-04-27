@@ -1,5 +1,6 @@
 const CartItem = require('../models/mongo/cart-item');
 const Order = require('../models/mongo/order');
+const Product = require('../models/mongo/product');
 const ApiError = require('../utils/api-error');
 const { StatusCode } = require('../utils/api-response');
 
@@ -7,6 +8,10 @@ class UserService {
   constructor() {}
 
   async addProductToCart(productId, userId) {
+    const product = await Product.findById(productId);
+    if (!product) {
+      throw new ApiError(StatusCode.NOT_FOUND, 'Product not found');
+    }
     const existingCartItem = await CartItem.findOne({ userId, productId });
     if (existingCartItem) {
       existingCartItem.quantity += 1;
