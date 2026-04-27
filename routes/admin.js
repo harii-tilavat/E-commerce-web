@@ -5,6 +5,7 @@ const validate = require('../middlewares/validate.middleware');
 const asyncHandler = require('../middlewares/async-handler');
 const { createProductSchema, updateProductSchema, productIdParamId } = require('../validations/product.validation');
 const AdminController = require('../controllers/admin');
+const upload = require('../middlewares/upload');
 
 const router = express.Router();
 
@@ -14,7 +15,12 @@ router.use(requireAuth);
 
 router.get('/products', asyncHandler(adminController.getProducts));
 
-router.post('/products', validate({ body: createProductSchema }), asyncHandler(adminController.createProduct));
+router.post(
+  '/products',
+  upload.single('file'),
+  validate({ body: createProductSchema }),
+  asyncHandler(adminController.createProduct),
+);
 
 router.patch(
   '/products/:id',

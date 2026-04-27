@@ -4,7 +4,6 @@ const { objectId } = require('./comman.validation');
 const createProductSchema = z.object({
   title: z.string().min(3),
   price: z.coerce.number().positive(),
-  imageUrl: z.string().url(),
   description: z.string().min(3),
 });
 
