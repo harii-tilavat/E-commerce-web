@@ -1,5 +1,7 @@
 const CartItem = require('../models/mongo/cart-item');
 const Order = require('../models/mongo/order');
+const ApiError = require('../utils/api-error');
+const { StatusCode } = require('../utils/api-response');
 
 class UserService {
   constructor() {}
@@ -9,34 +11,40 @@ class UserService {
     if (existingCartItem) {
       existingCartItem.quantity += 1;
       await existingCartItem.save();
-    } else {
-      const newCartItem = new CartItem({ userId, quantity: 1, productId });
-      await newCartItem.save();
+      return existingCartItem;
     }
+    return CartItem.create({ userId, quantity: 1, productId });
   }
 
   static async getCartItems(userId) {
-    const cartItems = await CartItem.find({ userId }).populate('productId');
-    return cartItems;
+    return CartItem.find({ userId }).populate('productId');
   }
 
   static async incrementCartItem(productId, userId) {
-    await CartItem.updateOne({ productId, userId }, { $inc: { quantity: 1 } });
+    const result = await CartItem.updateOne({ productId, userId }, { $inc: { quantity: 1 } });
+    if (result.matchedCount === 0) throw new ApiError(StatusCode.NOT_FOUND, 'Cart item not found');
   }
 
   static async decrementCartItem(productId, userId) {
-    await CartItem.updateOne({ productId, userId }, { $inc: { quantity: -1 } });
+    const item = await CartItem.findOne({ productId, userId });
+    if (!item) throw new ApiError(StatusCode.NOT_FOUND, 'Cart item not found');
+    if (item.quantity <= 1) {
+      await CartItem.deleteOne({ _id: item._id });
+      return;
+    }
+    item.quantity -= 1;
+    await item.save();
   }
 
   static async removeItemFromCart(productId, userId) {
-    await CartItem.deleteOne({ productId, userId });
+    const result = await CartItem.deleteOne({ productId, userId });
+    if (result.deletedCount === 0) throw new ApiError(StatusCode.NOT_FOUND, 'Cart item not found');
   }
 
   static async clearCart(userId) {
     await CartItem.deleteMany({ userId });
   }
 
-  // Orders
   static async getOrders(userId) {
     const orders = await Order.find({ userId }).populate('items.productId');
     return orders.map((order) => {
@@ -53,11 +61,13 @@ class UserService {
 
   static async createNewOrder(userId) {
     const cartItems = await CartItem.find({ userId }).lean();
-    if (!cartItems.length) return;
-    await Order.create({
+    if (!cartItems.length) throw new ApiError(StatusCode.BAD_REQUEST, 'Cart is empty');
+    const order = await Order.create({
       userId,
       items: cartItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
     });
+    await CartItem.deleteMany({ userId });
+    return order;
   }
 }
 

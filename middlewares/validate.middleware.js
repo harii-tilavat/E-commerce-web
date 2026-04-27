@@ -1,3 +1,6 @@
+const ApiError = require('../utils/api-error');
+const { StatusCode } = require('../utils/api-response');
+
 const validate = (schemas) => (req, res, next) => {
   try {
     if (schemas.body) {
@@ -11,13 +14,12 @@ const validate = (schemas) => (req, res, next) => {
     }
     next();
   } catch (err) {
-    return res.status(400).json({
-      message: 'Validation failed',
-      errors: err.issues?.map((e) => ({
+    const errors =
+      err.issues?.map((e) => ({
         field: e.path.join('.'),
         message: e.message,
-      })),
-    });
+      })) || [];
+    next(new ApiError(StatusCode.BAD_REQUEST, 'Validation failed', errors));
   }
 };
 

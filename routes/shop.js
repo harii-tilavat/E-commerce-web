@@ -1,30 +1,32 @@
 const express = require('express');
 
 const shopController = require('../controllers/shop');
-const requireLogin = require('../middlewares/auth.middleware');
+const requireAuth = require('../middlewares/auth.middleware');
+const validate = require('../middlewares/validate.middleware');
+const { productIdParamId } = require('../validations/product.validation');
+const { addToCartSchema, cartProductIdParam, updateCartSchema } = require('../validations/cart.validation');
 
 const router = express.Router();
 
-router.get('/', shopController.getIndex);
-
 router.get('/products', shopController.getProducts);
 
-router.get('/products/:productId', shopController.getProduct);
+router.get('/products/:id', validate({ params: productIdParamId }), shopController.getProduct);
 
-router.get('/cart', requireLogin, shopController.getCart);
+router.get('/cart', requireAuth, shopController.getCart);
 
-router.post('/cart', requireLogin, shopController.postCart);
+router.post('/cart', requireAuth, validate({ body: addToCartSchema }), shopController.addToCart);
 
-router.post('/cart/increment', requireLogin, shopController.postCartIncrement);
+router.patch(
+  '/cart/:productId',
+  requireAuth,
+  validate({ params: cartProductIdParam, body: updateCartSchema }),
+  shopController.updateCartItem,
+);
 
-router.post('/cart/decrement', requireLogin, shopController.postCartDecrement);
+router.delete('/cart/:productId', requireAuth, validate({ params: cartProductIdParam }), shopController.removeCartItem);
 
-router.post('/cart-delete-item', requireLogin, shopController.postCartDeleteProduct);
+router.get('/orders', requireAuth, shopController.getOrders);
 
-router.get('/orders', requireLogin, shopController.getOrders);
-
-router.post('/create-order', requireLogin, shopController.postOrder);
-
-// router.get('/checkout', shopController.getCheckout);
+router.post('/orders', requireAuth, shopController.createOrder);
 
 module.exports = router;

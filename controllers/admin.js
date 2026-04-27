@@ -1,73 +1,37 @@
 const Product = require('../models/mongo/product');
+const asyncHandler = require('../middlewares/async-handler');
+const { ApiResponse, StatusCode } = require('../utils/api-response');
+const ApiError = require('../utils/api-error');
 
-exports.getAddProduct = (req, res, next) => {
-  res.render('admin/edit-product', {
-    pageTitle: 'Add Product',
-    path: '/admin/add-product',
-    editing: false,
-  });
-};
+exports.getProducts = asyncHandler(async (req, res) => {
+  const products = await Product.find({ userId: req.user.id });
+  return ApiResponse.ok(res, 'Products fetched', { products });
+});
 
-exports.postAddProduct = async (req, res, next) => {
-  const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
-  const price = req.body.price;
-  const description = req.body.description;
-  const product = new Product({
-    title: title,
-    price: price,
-    imageUrl: imageUrl,
-    description: description,
+exports.createProduct = asyncHandler(async (req, res) => {
+  const { title, price, imageUrl, description } = req.body;
+  const product = await Product.create({
+    title,
+    price,
+    imageUrl,
+    description,
     userId: req.user.id,
   });
-  await product.save();
-  res.redirect('/');
-};
+  return ApiResponse.created(res, 'Product created', { product });
+});
 
-exports.getEditProduct = async (req, res, next) => {
-  const editMode = Boolean(req.query.edit);
-  if (!editMode) {
-    return res.redirect('/');
-  }
-  const prodId = req.params.productId;
-  const product = await Product.findById(prodId);
-  if (!product) {
-    return res.redirect('/');
-  }
-  res.render('admin/edit-product', {
-    pageTitle: 'Edit Product',
-    path: '/admin/edit-product',
-    editing: editMode,
-    product: product,
-  });
-};
+exports.updateProduct = asyncHandler(async (req, res) => {
+  const product = await Product.findOneAndUpdate(
+    { _id: req.params.id, userId: req.user.id },
+    req.body,
+    { new: true },
+  );
+  if (!product) throw new ApiError(StatusCode.NOT_FOUND, 'Product not found');
+  return ApiResponse.ok(res, 'Product updated', { product });
+});
 
-exports.postEditProduct = async (req, res, next) => {
-  const prodId = req.body.productId;
-  const userId = req.user.id;
-
-  const updatedProduct = {
-    title: req.body.title,
-    price: req.body.price,
-    imageUrl: req.body.imageUrl,
-    description: req.body.description,
-  };
-  await Product.updateOne({ _id: prodId, userId: userId }, updatedProduct);
-  res.redirect('/admin/products');
-};
-
-exports.getProducts = async (req, res, next) => {
-  const userId = req.user.id;
-  const products = await Product.find({ userId: userId });
-  res.render('admin/products', {
-    prods: products,
-    pageTitle: 'Admin Products',
-    path: '/admin/products',
-  });
-};
-
-exports.postDeleteProduct = async (req, res, next) => {
-  const prodId = req.body.productId;
-  await Product.deleteOne({ _id: prodId, userId: req.user.id });
-  res.redirect('/admin/products');
-};
+exports.deleteProduct = asyncHandler(async (req, res) => {
+  const result = await Product.deleteOne({ _id: req.params.id, userId: req.user.id });
+  if (result.deletedCount === 0) throw new ApiError(StatusCode.NOT_FOUND, 'Product not found');
+  return ApiResponse.ok(res, 'Product deleted');
+});

@@ -1,24 +1,24 @@
 const express = require('express');
 
 const adminController = require('../controllers/admin');
+const requireAuth = require('../middlewares/auth.middleware');
 const validate = require('../middlewares/validate.middleware');
-const createProductSchema = require('../validations/createProductSchema');
+const { createProductSchema, updateProductSchema, productIdParamId } = require('../validations/product.validation');
 
 const router = express.Router();
 
-// /admin/add-product => GET
-router.get('/add-product', adminController.getAddProduct);
+router.use(requireAuth);
 
-// // /admin/products => GET
 router.get('/products', adminController.getProducts);
 
-// /admin/add-product => POST
-router.post('/add-product', validate({ body: createProductSchema }), adminController.postAddProduct);
+router.post('/products', validate({ body: createProductSchema }), adminController.createProduct);
 
-router.get('/edit-product/:productId', adminController.getEditProduct);
+router.patch(
+  '/products/:id',
+  validate({ params: productIdParamId, body: updateProductSchema }),
+  adminController.updateProduct,
+);
 
-router.post('/edit-product', adminController.postEditProduct);
-
-router.post('/delete-product', adminController.postDeleteProduct);
+router.delete('/products/:id', validate({ params: productIdParamId }), adminController.deleteProduct);
 
 module.exports = router;

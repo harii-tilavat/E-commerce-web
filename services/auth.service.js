@@ -1,6 +1,9 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/mongo/user');
 const CommanService = require('./comman.service');
+const JwtHelperService = require('./jwt-helper.service');
+const ApiError = require('../utils/api-error');
+const { StatusCode } = require('../utils/api-response');
 
 class AuthService {
   constructor() {}
@@ -8,39 +11,51 @@ class AuthService {
   static async signupUser(name, email, password) {
     const existing = await User.findOne({ email });
     if (existing) {
-      return;
+      throw new ApiError(StatusCode.CONFLICT, 'Email already registered');
     }
     const hashedPassword = await bcrypt.hash(password, 12);
-    await User.create({ name, email, password: hashedPassword });
+    const user = await User.create({ name, email, password: hashedPassword });
+    return {
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+    };
   }
 
   static async loginUser(email, password) {
     const user = await User.findOne({ email });
     if (!user) {
-      return null;
+      throw new ApiError(StatusCode.UNAUTHORIZED, 'Invalid email or password');
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return null;
+      throw new ApiError(StatusCode.UNAUTHORIZED, 'Invalid email or password');
     }
-    const updatedUser = {
+    const token = JwtHelperService.generateToken({
       id: user._id.toString(),
       email: user.email,
-      name: user.name,
+    });
+    return {
+      user: {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+      },
+      token,
     };
-    return updatedUser;
   }
 
   static async resetPassword(email) {
     const user = await User.findOne({ email });
     if (!user) {
-      throw new Error('User not found');
+      throw new ApiError(StatusCode.NOT_FOUND, 'User not found');
     }
     const token = CommanService.generateRandomToken();
     user.resetToken = token;
-    user.resetTokenExpiration = Date.now() + 3600000; // 1 hour expiration
+    user.resetTokenExpiration = Date.now() + 3600000;
     await user.save();
-    console.log('RESET LINK : ', `http://localhost:3000/reset-password/${token}`);
+    console.log('RESET TOKEN : ', token);
+    return { resetToken: token };
   }
 
   static async getResetUser(token) {
@@ -57,7 +72,7 @@ class AuthService {
       resetTokenExpiration: { $gt: Date.now() },
     });
     if (!user) {
-      throw new Error('Reset link is invalid or has expired.');
+      throw new ApiError(StatusCode.BAD_REQUEST, 'Reset link is invalid or has expired.');
     }
     user.password = await bcrypt.hash(newPassword, 12);
     user.resetToken = undefined;

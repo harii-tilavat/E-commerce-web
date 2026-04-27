@@ -1,74 +1,37 @@
 require('dotenv').config();
 
-const path = require('path');
-
 const express = require('express');
-const bodyParser = require('body-parser');
-const session = require('express-session');
-const flash = require('connect-flash');
-const MongoDBStore = require('connect-mongodb-session')(session);
+const cors = require('cors');
 
-const errorController = require('./controllers/error');
-const { connectDB, uri } = require('./util/database');
-const app = express();
+const { connectDB } = require('./util/database');
+const errorHandler = require('./middlewares/error-handler');
+const ApiError = require('./utils/api-error');
+const { StatusCode } = require('./utils/api-response');
 
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
+const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
-const authRoutes = require('./routes/auth');
 
-const User = require('./models/mongo/user');
-const requireLogin = require('./middlewares/auth.middleware');
+const app = express();
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
-const store = new MongoDBStore({ uri });
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-store.on('error', (err) => {
-  console.error('Session store error:', err);
-});
+app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api', shopRoutes);
 
-store.on('connected', () => {
-  console.log('Session store connected 🟢');
-});
-
-app.use(
-  session({
-    secret: 'my secret key',
-    name: 'sessionId',
-    resave: false,
-    saveUninitialized: false,
-    store: store,
-  }),
+app.use((req, res, next) =>
+  next(new ApiError(StatusCode.NOT_FOUND, `Route not found: ${req.originalUrl}`)),
 );
-app.use(flash());
-
-app.use(async (req, res, next) => {
-  try {
-    const sessionUserId = req.session.user?.id;
-    const user = sessionUserId ? await User.findById(sessionUserId) : null;
-    res.locals.isAuthenticated = !!(req.session && req.session.user);
-    req.user = user;
-    next();
-  } catch (e) {
-    console.log('Error=> ', e);
-    next();
-  }
-});
-
-app.use('/admin', requireLogin, adminRoutes);
-app.use(shopRoutes);
-app.use(authRoutes);
-
-app.use(errorController.get404);
+app.use(errorHandler);
 
 connectDB()
   .then(() => {
     console.log('Mongodb connected successfully! 🟢');
     app.listen(3000, () => {
-      console.log('Server running at http://localhost:3000 🟢');
+      console.log('API running at http://localhost:3000 🟢');
     });
   })
   .catch((err) => {
