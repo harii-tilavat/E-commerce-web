@@ -1,6 +1,5 @@
 const { z } = require('zod');
-
-const objectId = z.string().regex(/^[a-f\d]{24}$/i, 'Invalid id');
+const { objectId } = require('./comman.validation');
 
 const createProductSchema = z.object({
   title: z.string().min(3),

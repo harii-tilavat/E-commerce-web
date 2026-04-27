@@ -5,7 +5,7 @@ const ApiError = require('../utils/api-error');
 
 class ShopController {
   constructor() {
-    this.userService = UserService;
+    this.userService = new UserService();
   }
 
   getProducts = async (req, res) => {
