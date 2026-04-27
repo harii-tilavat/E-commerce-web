@@ -1,24 +1,27 @@
 const express = require('express');
 
-const adminController = require('../controllers/admin');
 const requireAuth = require('../middlewares/auth.middleware');
 const validate = require('../middlewares/validate.middleware');
+const asyncHandler = require('../middlewares/async-handler');
 const { createProductSchema, updateProductSchema, productIdParamId } = require('../validations/product.validation');
+const AdminController = require('../controllers/admin');
 
 const router = express.Router();
 
+const adminController = new AdminController();
+
 router.use(requireAuth);
 
-router.get('/products', adminController.getProducts);
+router.get('/products', asyncHandler(adminController.getProducts));
 
-router.post('/products', validate({ body: createProductSchema }), adminController.createProduct);
+router.post('/products', validate({ body: createProductSchema }), asyncHandler(adminController.createProduct));
 
 router.patch(
   '/products/:id',
   validate({ params: productIdParamId, body: updateProductSchema }),
-  adminController.updateProduct,
+  asyncHandler(adminController.updateProduct),
 );
 
-router.delete('/products/:id', validate({ params: productIdParamId }), adminController.deleteProduct);
+router.delete('/products/:id', validate({ params: productIdParamId }), asyncHandler(adminController.deleteProduct));
 
 module.exports = router;

@@ -1,32 +1,40 @@
 const express = require('express');
 
-const shopController = require('../controllers/shop');
 const requireAuth = require('../middlewares/auth.middleware');
 const validate = require('../middlewares/validate.middleware');
+const asyncHandler = require('../middlewares/async-handler');
 const { productIdParamId } = require('../validations/product.validation');
 const { addToCartSchema, cartProductIdParam, updateCartSchema } = require('../validations/cart.validation');
+const ShopController = require('../controllers/shop');
 
 const router = express.Router();
 
-router.get('/products', shopController.getProducts);
+const shopController = new ShopController();
 
-router.get('/products/:id', validate({ params: productIdParamId }), shopController.getProduct);
+router.get('/products', asyncHandler(shopController.getProducts));
 
-router.get('/cart', requireAuth, shopController.getCart);
+router.get('/products/:id', validate({ params: productIdParamId }), asyncHandler(shopController.getProduct));
 
-router.post('/cart', requireAuth, validate({ body: addToCartSchema }), shopController.addToCart);
+router.get('/cart', requireAuth, asyncHandler(shopController.getCart));
+
+router.post('/cart', requireAuth, validate({ body: addToCartSchema }), asyncHandler(shopController.addToCart));
 
 router.patch(
   '/cart/:productId',
   requireAuth,
   validate({ params: cartProductIdParam, body: updateCartSchema }),
-  shopController.updateCartItem,
+  asyncHandler(shopController.updateCartItem),
 );
 
-router.delete('/cart/:productId', requireAuth, validate({ params: cartProductIdParam }), shopController.removeCartItem);
+router.delete(
+  '/cart/:productId',
+  requireAuth,
+  validate({ params: cartProductIdParam }),
+  asyncHandler(shopController.removeCartItem),
+);
 
-router.get('/orders', requireAuth, shopController.getOrders);
+router.get('/orders', requireAuth, asyncHandler(shopController.getOrders));
 
-router.post('/orders', requireAuth, shopController.createOrder);
+router.post('/orders', requireAuth, asyncHandler(shopController.createOrder));
 
 module.exports = router;

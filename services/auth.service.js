@@ -8,7 +8,7 @@ const { StatusCode } = require('../utils/api-response');
 class AuthService {
   constructor() {}
 
-  static async signupUser(name, email, password) {
+  async signupUser(name, email, password) {
     const existing = await User.findOne({ email });
     if (existing) {
       throw new ApiError(StatusCode.CONFLICT, 'Email already registered');
@@ -22,7 +22,7 @@ class AuthService {
     };
   }
 
-  static async loginUser(email, password) {
+  async loginUser(email, password) {
     const user = await User.findOne({ email });
     if (!user) {
       throw new ApiError(StatusCode.UNAUTHORIZED, 'Invalid email or password');
@@ -45,7 +45,7 @@ class AuthService {
     };
   }
 
-  static async resetPassword(email) {
+  async resetPassword(email) {
     const user = await User.findOne({ email });
     if (!user) {
       throw new ApiError(StatusCode.NOT_FOUND, 'User not found');
@@ -58,14 +58,14 @@ class AuthService {
     return { resetToken: token };
   }
 
-  static async getResetUser(token) {
+  async getResetUser(token) {
     return User.findOne({
       resetToken: token,
       resetTokenExpiration: { $gt: Date.now() },
     });
   }
 
-  static async updatePassword(userId, token, newPassword) {
+  async updatePassword(userId, token, newPassword) {
     const user = await User.findOne({
       _id: userId,
       resetToken: token,
