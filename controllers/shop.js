@@ -2,15 +2,17 @@ const Product = require('../models/mongo/product');
 const UserService = require('../services/user.service');
 const { ApiResponse, StatusCode } = require('../utils/api-response');
 const ApiError = require('../utils/api-error');
+const ProductService = require('../services/product.service');
 
 class ShopController {
   constructor() {
     this.userService = new UserService();
+    this.productService = new ProductService();
   }
 
   getProducts = async (req, res) => {
-    const products = await Product.find();
-    return ApiResponse.ok(res, 'Products fetched', { products });
+    const response = await this.productService.getAllProducts(req.query);
+    return ApiResponse.ok(res, response);
   };
 
   getProduct = async (req, res) => {

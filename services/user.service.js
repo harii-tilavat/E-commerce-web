@@ -4,6 +4,7 @@ const Product = require('../models/mongo/product');
 const ApiError = require('../utils/api-error');
 const { StatusCode } = require('../utils/api-response');
 const { generateInvoicePdf } = require('../utils/invoice-pdf');
+const CommanService = require('./comman.service');
 
 class UserService {
   constructor() {}
@@ -51,9 +52,14 @@ class UserService {
     await CartItem.deleteMany({ userId });
   }
 
-  async getOrders(userId) {
-    const orders = await Order.find({ userId }).populate('items.productId');
-    return orders.map((order) => {
+  async getOrders(userId, options) {
+    const { limit, offset } = CommanService.getPagination(options);
+
+    const [orders, total_count] = await Promise.all([
+      Order.find({ userId }).limit(limit).skip(offset).populate('items.productId'),
+      Order.find({ userId }).countDocuments(),
+    ]);
+    const updatedOrders = orders.map((order) => {
       const obj = order.toObject({ virtuals: true });
       return {
         ...obj,
@@ -63,6 +69,12 @@ class UserService {
         })),
       };
     });
+    return {
+      limit,
+      offset,
+      total_count,
+      orders: updatedOrders,
+    };
   }
 
   async createNewOrder(userId) {
@@ -77,9 +89,7 @@ class UserService {
   }
 
   async getInvoice(orderId, userId) {
-    const order = await Order.findById(orderId)
-      .populate('items.productId')
-      .populate('userId', 'name email');
+    const order = await Order.findById(orderId).populate('items.productId').populate('userId', 'name email');
     if (!order) {
       throw new ApiError(StatusCode.NOT_FOUND, 'Order not found');
     }

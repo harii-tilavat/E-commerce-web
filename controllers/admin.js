@@ -8,8 +8,8 @@ class AdminController {
     this.productService = new ProductService();
   }
   getProducts = async (req, res) => {
-    const products = await Product.find({ userId: req.user.id });
-    return ApiResponse.ok(res, 'Products fetched', { products });
+    const response = await this.productService.getUsersProducts(req.user.id, req.query);
+    return ApiResponse.ok(res, 'Products fetched', response);
   };
 
   createProduct = async (req, res) => {
