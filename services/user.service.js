@@ -3,6 +3,7 @@ const Order = require('../models/mongo/order');
 const Product = require('../models/mongo/product');
 const ApiError = require('../utils/api-error');
 const { StatusCode } = require('../utils/api-response');
+const { generateInvoicePdf } = require('../utils/invoice-pdf');
 
 class UserService {
   constructor() {}
@@ -73,6 +74,20 @@ class UserService {
     });
     await CartItem.deleteMany({ userId });
     return order;
+  }
+
+  async getInvoice(orderId, userId) {
+    const order = await Order.findById(orderId)
+      .populate('items.productId')
+      .populate('userId', 'name email');
+    if (!order) {
+      throw new ApiError(StatusCode.NOT_FOUND, 'Order not found');
+    }
+    if (userId && !order.userId._id.equals(userId)) {
+      throw new ApiError(StatusCode.FORBIDDEN, 'Not authorized to access this invoice');
+    }
+
+    return generateInvoicePdf(order);
   }
 }
 

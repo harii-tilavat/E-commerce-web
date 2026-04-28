@@ -35,6 +35,8 @@ router.delete(
 
 router.get('/orders', requireAuth, asyncHandler(shopController.getOrders));
 
+router.get('/orders/:id/invoice', requireAuth, asyncHandler(shopController.getInvoice));
+
 router.post('/orders', requireAuth, asyncHandler(shopController.createOrder));
 
 module.exports = router;

@@ -17,14 +17,15 @@ router.get('/products', asyncHandler(adminController.getProducts));
 
 router.post(
   '/products',
-  upload.single('file'),
   validate({ body: createProductSchema }),
+  upload.single('file'),
   asyncHandler(adminController.createProduct),
 );
 
 router.patch(
   '/products/:id',
   validate({ params: productIdParamId, body: updateProductSchema }),
+  upload.single('file'),
   asyncHandler(adminController.updateProduct),
 );
 

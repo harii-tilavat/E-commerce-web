@@ -51,6 +51,14 @@ class ShopController {
     return ApiResponse.ok(res, 'Orders fetched', { orders });
   };
 
+  getInvoice = async (req, res) => {
+    const { doc, fileName } = await this.userService.getInvoice(req.params.id, req.user?.id);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    doc.pipe(res);
+    return doc.end();
+  };
+
   createOrder = async (req, res) => {
     const order = await this.userService.createNewOrder(req.user.id);
     return ApiResponse.created(res, 'Order placed', { order });
