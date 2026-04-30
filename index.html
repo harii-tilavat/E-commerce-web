@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Socket.IO Playground</title>
+
+    <!--
+    Socket.IO client library (loaded from CDN).
+    Make sure the major version matches your server's socket.io version.
+    Server uses socket.io ^4.x → client 4.x is compatible.
+  -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+    <style>
+      /* ---------- Theme tokens ---------- */
+      :root {
+        --bg: #0b1220;
+        --panel: #131b2e;
+        --panel-2: #1a2540;
+        --border: #243049;
+        --text: #e6edf7;
+        --muted: #8a99b8;
+        --accent: #5b8cff;
+        --accent-2: #7c5bff;
+        --success: #2ecc71;
+        --danger: #ff5d6c;
+        --warn: #f4b740;
+        --in: #5ee29b;
+        --out: #6aa9ff;
+        --sys: #f4b740;
+        --err: #ff7a85;
+        --radius: 10px;
+        --shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 24px rgba(0, 0, 0, 0.35);
+      }
+
+      /* ---------- Base ---------- */
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        background:
+          radial-gradient(1200px 600px at 10% -10%, #1a2447 0%, transparent 60%),
+          radial-gradient(1000px 500px at 110% 10%, #1a1733 0%, transparent 60%), var(--bg);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      code,
+      pre,
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      /* ---------- Layout ---------- */
+      header {
+        padding: 20px 28px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(11, 18, 32, 0.6);
+        backdrop-filter: blur(10px);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.3px;
+      }
+      header .subtitle {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px 28px 80px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      @media (max-width: 880px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card {
+        background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 18px;
+        box-shadow: var(--shadow);
+      }
+      .card h2 {
+        margin: 0 0 12px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+      }
+      .card .desc {
+        font-size: 12px;
+        color: var(--muted);
+        margin: -6px 0 12px;
+      }
+
+      /* ---------- Status pill ---------- */
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        background: rgba(255, 93, 108, 0.15);
+        color: var(--danger);
+        border: 1px solid rgba(255, 93, 108, 0.3);
+      }
+      .pill .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--danger);
+        box-shadow: 0 0 0 4px rgba(255, 93, 108, 0.15);
+      }
+      .pill.on {
+        background: rgba(46, 204, 113, 0.12);
+        color: var(--success);
+        border-color: rgba(46, 204, 113, 0.35);
+      }
+      .pill.on .dot {
+        background: var(--success);
+        box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.15);
+      }
+
+      /* ---------- Inputs ---------- */
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin: 10px 0 6px;
+      }
+      input[type='text'],
+      textarea,
+      select {
+        width: 100%;
+        padding: 10px 12px;
+        background: #0d1426;
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 13px;
+        outline: none;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+      input[type='text']:focus,
+      textarea:focus,
+      select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.2);
+      }
+      textarea {
+        resize: vertical;
+        min-height: 90px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      /* ---------- Buttons ---------- */
+      .row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: linear-gradient(180deg, #1f2b48 0%, #182240 100%);
+        color: var(--text);
+        padding: 9px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        transition:
+          transform 0.05s ease,
+          background 0.15s,
+          border-color 0.15s;
+      }
+      .btn:hover {
+        border-color: var(--accent);
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .btn.primary {
+        background: linear-gradient(180deg, var(--accent) 0%, #4675e0 100%);
+        border-color: rgba(91, 140, 255, 0.6);
+      }
+      .btn.danger {
+        background: linear-gradient(180deg, #b8424d 0%, #8c2f37 100%);
+        border-color: rgba(255, 93, 108, 0.5);
+      }
+      .btn.success {
+        background: linear-gradient(180deg, #25a85f 0%, #1e8b4e 100%);
+        border-color: rgba(46, 204, 113, 0.5);
+      }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* ---------- Listener chips ---------- */
+      .chips {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+        min-height: 28px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background: rgba(91, 140, 255, 0.12);
+        color: #b9cdff;
+        border: 1px solid rgba(91, 140, 255, 0.3);
+        border-radius: 999px;
+        font-size: 12px;
+      }
+      .chip button {
+        background: transparent;
+        color: inherit;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        padding: 0;
+      }
+
+      /* ---------- Log ---------- */
+      .log-wrap {
+        grid-column: 1 / -1;
+      }
+      .log-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+      .log-controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .toggle input {
+        accent-color: var(--accent);
+      }
+
+      #log {
+        background: #07101f;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+        height: 380px;
+        overflow-y: auto;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 12.5px;
+      }
+      .entry {
+        padding: 8px 10px;
+        border-radius: 6px;
+        margin-bottom: 6px;
+        border-left: 3px solid var(--border);
+        background: rgba(255, 255, 255, 0.015);
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .entry .meta {
+        color: var(--muted);
+        font-size: 11px;
+        margin-bottom: 4px;
+        display: flex;
+        gap: 8px;
+      }
+      .entry.in {
+        border-left-color: var(--in);
+      }
+      .entry.out {
+        border-left-color: var(--out);
+      }
+      .entry.sys {
+        border-left-color: var(--sys);
+      }
+      .entry.err {
+        border-left-color: var(--err);
+      }
+      .entry .tag {
+        font-weight: 600;
+      }
+      .entry.in .tag {
+        color: var(--in);
+      }
+      .entry.out .tag {
+        color: var(--out);
+      }
+      .entry.sys .tag {
+        color: var(--sys);
+      }
+      .entry.err .tag {
+        color: var(--err);
+      }
+      .entry pre {
+        margin: 0;
+        color: #c9d6ee;
+      }
+
+      /* Subtle scrollbar */
+      #log::-webkit-scrollbar {
+        width: 10px;
+      }
+      #log::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      #log::-webkit-scrollbar-thumb {
+        background: #1d2944;
+        border-radius: 8px;
+      }
+      #log::-webkit-scrollbar-thumb:hover {
+        background: #2a3a60;
+      }
+
+      .hint {
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>⚡ Socket.IO Playground</h1>
+        <div class="subtitle">Connect, emit, listen — practice Socket.IO without writing UI code.</div>
+      </div>
+      <div style="margin-left: auto">
+        <span id="status" class="pill"><span class="dot"></span>disconnected</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- ============ CONNECTION ============ -->
+      <section class="card">
+        <h2>Connection</h2>
+        <div class="desc">Point this at your running Socket.IO server.</div>
+
+        <label for="serverUrl">Server URL</label>
+        <input id="serverUrl" type="text" value="http://localhost:3000" placeholder="http://localhost:3000" />
+
+        <label for="namespace">Namespace (optional)</label>
+        <input id="namespace" type="text" value="" placeholder="/admin" />
+
+        <label for="authToken">JWT token (sent as <code>Authorization: Bearer &lt;token&gt;</code>)</label>
+        <div style="display: flex; gap: 8px">
+          <input id="authToken" type="text" value="" placeholder="paste JWT here — no 'Bearer ' prefix" style="flex: 1" />
+          <button id="btnClearToken" class="btn" type="button" style="white-space: nowrap">Clear</button>
+        </div>
+        <div class="hint">
+          Saved in <code>localStorage</code> — auto-loads next visit. Server reads it via
+          <code>socket.handshake.auth.token</code> or <code>socket.handshake.headers.authorization</code>.
+        </div>
+
+        <div class="row" style="margin-top: 14px">
+          <button id="btnConnect" class="btn primary">Connect</button>
+          <button id="btnDisconnect" class="btn danger" disabled>Disconnect</button>
+          <button id="btnReconnect" class="btn">Reconnect</button>
+        </div>
+        <div class="hint">Tip: open this page in two tabs to test broadcast / room behavior.</div>
+      </section>
+
+      <!-- ============ ROOMS ============ -->
+      <section class="card">
+        <h2>Rooms</h2>
+        <div class="desc">
+          Emits a <code>join</code> / <code>leave</code> event with the room name. Your server must handle these (e.g.
+          <code>socket.on('join', r =&gt; socket.join(r))</code>).
+        </div>
+
+        <label for="roomName">Room name</label>
+        <input id="roomName" type="text" placeholder="general" />
+
+        <label for="joinEvent">Join event name</label>
+        <input id="joinEvent" type="text" value="join" />
+
+        <label for="leaveEvent">Leave event name</label>
+        <input id="leaveEvent" type="text" value="leave" />
+
+        <div class="row" style="margin-top: 14px">
+          <button id="btnJoin" class="btn success">Join Room</button>
+          <button id="btnLeave" class="btn">Leave Room</button>
+        </div>
+      </section>
+
+      <!-- ============ EMIT ============ -->
+      <section class="card">
+        <h2>Emit Event</h2>
+        <div class="desc">Send any event with a JSON payload.</div>
+
+        <label for="emitEvent">Event name</label>
+        <input id="emitEvent" type="text" value="message" />
+
+        <label for="emitPayload">Payload (JSON)</label>
+        <textarea id="emitPayload">
+{
+  "text": "hello server"
+}</textarea
+        >
+
+        <div class="row" style="margin-top: 14px">
+          <button id="btnEmit" class="btn primary">Emit</button>
+          <button id="btnFormat" class="btn">Format JSON</button>
+        </div>
+      </section>
+
+      <!-- ============ LISTEN ============ -->
+      <section class="card">
+        <h2>Listen for Events</h2>
+        <div class="desc">Subscribe to event names. Anything received shows up in the log below.</div>
+
+        <label for="listenEvent">Event name to subscribe</label>
+        <input id="listenEvent" type="text" value="reply" />
+
+        <div class="row" style="margin-top: 14px">
+          <button id="btnListen" class="btn primary">+ Add Listener</button>
+          <button id="btnListenClear" class="btn">Remove All</button>
+        </div>
+
+        <label style="margin-top: 14px">Active listeners</label>
+        <div id="chips" class="chips"></div>
+      </section>
+
+      <!-- ============ LOG ============ -->
+      <section class="card log-wrap">
+        <div class="log-header">
+          <h2 style="margin: 0">Event Log</h2>
+          <div class="log-controls">
+            <label class="toggle">
+              <input id="autoScroll" type="checkbox" checked />
+              Auto-scroll
+            </label>
+            <button id="btnClearLog" class="btn">Clear</button>
+          </div>
+        </div>
+        <div id="log"></div>
+      </section>
+    </main>
+
+    <script>
+      /* =========================================================
+       Socket.IO Playground — vanilla JS only.
+       Goal: practice client-server events without writing UI.
+
+       The script does NOT hardcode any business events.
+       It exposes a generic UI that lets you:
+         - connect / disconnect / reconnect
+         - emit any event with any JSON payload
+         - subscribe to any event name and see what comes back
+       ========================================================= */
+
+      // ----- Tiny helper: $('id') instead of document.getElementById('id') -----
+      const $ = (id) => document.getElementById(id);
+
+      // ----- DOM references (cached once) -----
+      const els = {
+        status: $('status'),
+        serverUrl: $('serverUrl'),
+        namespace: $('namespace'),
+        authToken: $('authToken'),
+        btnClearToken: $('btnClearToken'),
+        btnConnect: $('btnConnect'),
+        btnDisconnect: $('btnDisconnect'),
+        btnReconnect: $('btnReconnect'),
+
+        roomName: $('roomName'),
+        joinEvent: $('joinEvent'),
+        leaveEvent: $('leaveEvent'),
+        btnJoin: $('btnJoin'),
+        btnLeave: $('btnLeave'),
+
+        emitEvent: $('emitEvent'),
+        emitPayload: $('emitPayload'),
+        btnEmit: $('btnEmit'),
+        btnFormat: $('btnFormat'),
+
+        listenEvent: $('listenEvent'),
+        btnListen: $('btnListen'),
+        btnListenClear: $('btnListenClear'),
+        chips: $('chips'),
+
+        log: $('log'),
+        btnClearLog: $('btnClearLog'),
+        autoScroll: $('autoScroll'),
+      };
+
+      // ----- App state -----
+      let socket = null; // current socket.io connection (or null)
+      const listeners = new Set(); // event names the user wants to listen for
+
+      /* ---------------------------------------------------------
+       LOCAL STORAGE — persist token (and URL/namespace) so the
+       user doesn't have to paste them on every reload.
+       --------------------------------------------------------- */
+      const LS = {
+        token: 'sio_play_token',
+        url: 'sio_play_url',
+        ns: 'sio_play_namespace',
+      };
+
+      function loadFromStorage() {
+        const t = localStorage.getItem(LS.token);
+        const u = localStorage.getItem(LS.url);
+        const n = localStorage.getItem(LS.ns);
+        if (t) els.authToken.value = t;
+        if (u) els.serverUrl.value = u;
+        if (n) els.namespace.value = n;
+      }
+
+      function saveToStorage() {
+        localStorage.setItem(LS.token, els.authToken.value.trim());
+        localStorage.setItem(LS.url, els.serverUrl.value.trim());
+        localStorage.setItem(LS.ns, els.namespace.value.trim());
+      }
+
+      /* ---------------------------------------------------------
+       LOGGING
+       Renders a colored log entry with timestamp + pretty JSON.
+       kind: 'in' | 'out' | 'sys' | 'err'
+       --------------------------------------------------------- */
+      function log(kind, label, data) {
+        const entry = document.createElement('div');
+        entry.className = `entry ${kind}`;
+
+        const time = new Date().toLocaleTimeString();
+        const tag = { in: 'RECV', out: 'EMIT', sys: 'SYS', err: 'ERR' }[kind] || kind.toUpperCase();
+
+        // Pretty-print payload if it's an object; otherwise show as-is
+        let body = '';
+        if (data !== undefined) {
+          try {
+            body = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+          } catch (e) {
+            body = String(data);
+          }
+        }
+
+        entry.innerHTML = `
+        <div class="meta">
+          <span class="tag">${tag}</span>
+          <span>${time}</span>
+          <span>${label}</span>
+        </div>
+        ${body ? `<pre>${escapeHtml(body)}</pre>` : ''}
+      `;
+
+        els.log.appendChild(entry);
+
+        // Auto-scroll to bottom if the toggle is on
+        if (els.autoScroll.checked) {
+          els.log.scrollTop = els.log.scrollHeight;
+        }
+      }
+
+      // Prevent payload strings from being interpreted as HTML
+      function escapeHtml(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      /* ---------------------------------------------------------
+       CONNECTION STATUS pill
+       --------------------------------------------------------- */
+      function setStatus(connected, label) {
+        els.status.classList.toggle('on', connected);
+        els.status.innerHTML = `<span class="dot"></span>${label}`;
+        els.btnConnect.disabled = connected;
+        els.btnDisconnect.disabled = !connected;
+      }
+
+      /* ---------------------------------------------------------
+       CONNECT
+       Reads URL + optional namespace, creates socket, wires
+       built-in lifecycle events (connect/disconnect/error), then
+       re-attaches any listeners the user already added.
+       --------------------------------------------------------- */
+      function connect() {
+        if (socket && socket.connected) {
+          log('sys', 'already connected');
+          return;
+        }
+
+        const baseUrl = els.serverUrl.value.trim();
+        const ns = els.namespace.value.trim();
+        const fullUrl = ns ? `${baseUrl.replace(/\/+$/, '')}${ns.startsWith('/') ? ns : '/' + ns}` : baseUrl;
+
+        // ---- Auth token ----
+        // Strip leading "Bearer " if user pasted it; we add it back ourselves.
+        let token = els.authToken.value.trim();
+        if (/^bearer\s+/i.test(token)) token = token.replace(/^bearer\s+/i, '');
+
+        // Persist current values so they survive reloads.
+        saveToStorage();
+
+        log('sys', `connecting → ${fullUrl}${token ? ' (with bearer token)' : ''}`);
+
+        // Build options. Two ways the token is sent so the server can read it
+        // either via socket.handshake.auth.token OR socket.handshake.headers.authorization:
+        //   1) auth → handshake.auth.token  (works on every transport, websocket included)
+        //   2) extraHeaders → Authorization: Bearer <token>
+        //      NOTE: browsers ignore extraHeaders on the native WebSocket transport;
+        //      it only reaches the server during the polling handshake. That's why we
+        //      list 'polling' first when a token is present, so the header arrives.
+        const opts = {
+          transports: token ? ['polling', 'websocket'] : ['websocket', 'polling'],
+          reconnection: true,
+          auth: token ? { token } : {},
+          extraHeaders: token ? { Authorization: `Bearer ${token}` } : {},
+        };
+
+        socket = io(fullUrl, opts);
+
+        // ----- Built-in lifecycle events -----
+        socket.on('connect', () => {
+          setStatus(true, `connected · ${socket.id}`);
+          log('sys', `connected (id=${socket.id})`);
+          // Re-bind every user-defined listener after a fresh connection
+          listeners.forEach(attachListener);
+        });
+
+        socket.on('disconnect', (reason) => {
+          setStatus(false, 'disconnected');
+          log('sys', `disconnected (${reason})`);
+        });
+
+        socket.on('connect_error', (err) => {
+          log('err', 'connect_error', err.message);
+        });
+
+        socket.io.on('reconnect_attempt', (n) => log('sys', `reconnect attempt #${n}`));
+        socket.io.on('reconnect', (n) => log('sys', `reconnected after ${n} attempt(s)`));
+      }
+
+      /* ---------------------------------------------------------
+       DISCONNECT / RECONNECT
+       --------------------------------------------------------- */
+      function disconnect() {
+        if (!socket) return;
+        socket.disconnect();
+      }
+
+      function reconnect() {
+        disconnect();
+        // Small delay so disconnect lifecycle has a chance to fire
+        setTimeout(connect, 150);
+      }
+
+      /* ---------------------------------------------------------
+       EMIT
+       Reads event name + JSON payload from the form, validates
+       JSON, sends it. Logs the emit so you can see it in flight.
+       --------------------------------------------------------- */
+      function emit() {
+        if (!socket || !socket.connected) {
+          log('err', 'cannot emit', 'not connected');
+          return;
+        }
+
+        const eventName = els.emitEvent.value.trim();
+        if (!eventName) {
+          log('err', 'cannot emit', 'event name is required');
+          return;
+        }
+
+        const raw = els.emitPayload.value.trim();
+        let payload = undefined;
+        if (raw.length > 0) {
+          try {
+            payload = JSON.parse(raw);
+          } catch (e) {
+            log('err', 'invalid JSON payload', e.message);
+            return;
+          }
+        }
+
+        socket.emit(eventName, payload);
+        log('out', `"${eventName}"`, payload);
+      }
+
+      function formatPayload() {
+        const raw = els.emitPayload.value.trim();
+        if (!raw) return;
+        try {
+          els.emitPayload.value = JSON.stringify(JSON.parse(raw), null, 2);
+        } catch (e) {
+          log('err', 'cannot format', e.message);
+        }
+      }
+
+      /* ---------------------------------------------------------
+       LISTENERS
+       The user types an event name and the UI subscribes for it.
+       The set of names is kept in `listeners` so we can re-bind
+       them after every reconnect.
+       --------------------------------------------------------- */
+      function attachListener(eventName) {
+        if (!socket) return;
+        // .off() first to avoid duplicate handlers if attached twice
+        socket.off(eventName);
+        socket.on(eventName, (...args) => {
+          // If only one arg, log it directly; otherwise log the array
+          const payload = args.length <= 1 ? args[0] : args;
+          log('in', `"${eventName}"`, payload);
+        });
+      }
+
+      function addListener() {
+        const name = els.listenEvent.value.trim();
+        if (!name) return;
+        if (listeners.has(name)) {
+          log('sys', `already listening for "${name}"`);
+          return;
+        }
+        listeners.add(name);
+        attachListener(name);
+        renderChips();
+        log('sys', `listening for "${name}"`);
+      }
+
+      function removeListener(name) {
+        listeners.delete(name);
+        if (socket) socket.off(name);
+        renderChips();
+        log('sys', `removed listener "${name}"`);
+      }
+
+      function clearListeners() {
+        listeners.forEach((n) => socket && socket.off(n));
+        listeners.clear();
+        renderChips();
+        log('sys', 'cleared all listeners');
+      }
+
+      function renderChips() {
+        els.chips.innerHTML = '';
+        if (listeners.size === 0) {
+          els.chips.innerHTML = `<span style="color:var(--muted);font-size:12px">no listeners — add one above</span>`;
+          return;
+        }
+        listeners.forEach((name) => {
+          const chip = document.createElement('span');
+          chip.className = 'chip';
+          chip.innerHTML = `<span>${escapeHtml(name)}</span><button title="remove">×</button>`;
+          chip.querySelector('button').onclick = () => removeListener(name);
+          els.chips.appendChild(chip);
+        });
+      }
+
+      /* ---------------------------------------------------------
+       ROOMS — purely a convenience wrapper around emit().
+       Whatever event names you put in the inputs are emitted
+       with { room } as the payload, so your server controls
+       the actual join/leave logic.
+       --------------------------------------------------------- */
+      function joinRoom() {
+        const room = els.roomName.value.trim();
+        const ev = els.joinEvent.value.trim() || 'join';
+        if (!room) return log('err', 'cannot join', 'room name is required');
+        if (!socket || !socket.connected) return log('err', 'cannot join', 'not connected');
+        socket.emit(ev, { room });
+        log('out', `"${ev}"`, { room });
+      }
+
+      function leaveRoom() {
+        const room = els.roomName.value.trim();
+        const ev = els.leaveEvent.value.trim() || 'leave';
+        if (!room) return log('err', 'cannot leave', 'room name is required');
+        if (!socket || !socket.connected) return log('err', 'cannot leave', 'not connected');
+        socket.emit(ev, { room });
+        log('out', `"${ev}"`, { room });
+      }
+
+      /* ---------------------------------------------------------
+       Wire up button handlers
+       --------------------------------------------------------- */
+      els.btnConnect.onclick = connect;
+      els.btnDisconnect.onclick = disconnect;
+      els.btnReconnect.onclick = reconnect;
+
+      els.btnJoin.onclick = joinRoom;
+      els.btnLeave.onclick = leaveRoom;
+
+      els.btnEmit.onclick = emit;
+      els.btnFormat.onclick = formatPayload;
+
+      els.btnListen.onclick = addListener;
+      els.btnListenClear.onclick = clearListeners;
+
+      els.btnClearLog.onclick = () => {
+        els.log.innerHTML = '';
+      };
+
+      // Submit Enter inside event-name inputs as a shortcut
+      els.listenEvent.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addListener();
+      });
+      els.roomName.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') joinRoom();
+      });
+
+      // Auto-save token / URL / namespace on every edit (debounce-free is fine here)
+      els.authToken.addEventListener('input', saveToStorage);
+      els.serverUrl.addEventListener('input', saveToStorage);
+      els.namespace.addEventListener('input', saveToStorage);
+
+      // Clear-token button — wipes input + localStorage entry
+      els.btnClearToken.onclick = () => {
+        els.authToken.value = '';
+        localStorage.removeItem(LS.token);
+        log('sys', 'token cleared');
+      };
+
+      // Pre-fill inputs from previous session
+      loadFromStorage();
+
+      // Initial render
+      renderChips();
+      log('sys', 'ready', els.authToken.value ? 'token loaded from localStorage' : 'click "Connect" to start');
+    </script>
+  </body>
+</html>

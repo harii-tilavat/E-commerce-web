@@ -27,8 +27,7 @@ class AdminController {
   };
 
   deleteProduct = async (req, res) => {
-    const result = await Product.deleteOne({ _id: req.params.id, userId: req.user.id });
-    if (result.deletedCount === 0) throw new ApiError(StatusCode.NOT_FOUND, 'Product not found');
+    await this.productService.deleteProduct(req.params.id, req.user.id);
     // TODO: Remove image if it's deleted
     return ApiResponse.noContent(res);
   };

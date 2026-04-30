@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const http = require('http');
 
 const { connectDB } = require('./util/database');
 const errorHandler = require('./middlewares/error-handler');
@@ -11,9 +12,11 @@ const { StatusCode } = require('./utils/api-response');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const socketService = require('./services/socket.service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const server = http.createServer(app);
 
 app.use(cors());
 app.use(express.json());
@@ -29,8 +32,9 @@ app.use(errorHandler);
 connectDB()
   .then(() => {
     console.log('Mongodb connected successfully! 🟢');
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`API running at http://localhost:${PORT} 🟢`);
+      socketService.init(server);
     });
   })
   .catch((err) => {

@@ -1,6 +1,11 @@
 const Product = require('../models/mongo/product');
 const CommanService = require('./comman.service');
+const socketService = require('./socket.service');
 
+const productEvents = {
+  productCreated: 'product:created',
+  productDeleted: 'product:deleted',
+};
 class ProductService {
   constructor() {}
 
@@ -16,6 +21,8 @@ class ProductService {
       description,
       userId,
     });
+
+    socketService.emitToAdmins(productEvents.productCreated, createdProduct);
     return createdProduct;
   }
 
@@ -49,6 +56,13 @@ class ProductService {
       offset,
       products,
     };
+  }
+
+  async deleteProduct(productId, userId) {
+    const result = await Product.deleteOne({ _id: productId, userId });
+    if (result.deletedCount === 0) throw new ApiError(StatusCode.NOT_FOUND, 'Product not found');
+
+    socketService.emitToAdmins(productEvents.productDeleted, { productId });
   }
 }
 

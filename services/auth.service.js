@@ -4,6 +4,7 @@ const CommanService = require('./comman.service');
 const JwtHelperService = require('./jwt-helper.service');
 const ApiError = require('../utils/api-error');
 const { StatusCode } = require('../utils/api-response');
+const socketService = require('./socket.service');
 
 class AuthService {
   constructor() {}
@@ -35,6 +36,7 @@ class AuthService {
       id: user._id.toString(),
       email: user.email,
     });
+
     return {
       user: {
         id: user._id.toString(),
