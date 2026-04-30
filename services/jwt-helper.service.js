@@ -12,8 +12,8 @@ class JwtHelperService {
   static verifyToken(token) {
     try {
       return jwt.verify(token, process.env.JWT_SECRET);
-    } catch {
-      throw new ApiError(StatusCode.UNAUTHORIZED, 'Invalid or expired token');
+    } catch (err) {
+      throw new ApiError(StatusCode.UNAUTHORIZED, err?.message);
     }
   }
 }

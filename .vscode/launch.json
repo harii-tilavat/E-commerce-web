@@ -9,6 +9,17 @@
       "console": "integratedTerminal",
       "restart": true,
       "runtimeExecutable": "nodemon"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Run Mocha Tests",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["test"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"],
+      "restart": true,
     }
   ]
 }
