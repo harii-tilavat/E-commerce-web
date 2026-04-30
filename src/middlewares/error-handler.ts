@@ -1,8 +1,9 @@
+import type { ErrorRequestHandler } from 'express';
 import ApiError from '../utils/api-error.js';
 import { StatusCode } from '../utils/api-response.js';
 
-export default (err, req, res, next) => {
-  let error = err;
+const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+  let error: ApiError = err;
 
   if (err?.name === 'CastError') {
     error = new ApiError(StatusCode.BAD_REQUEST, `Invalid ${err.path}: ${err.value}`);
@@ -25,3 +26,5 @@ export default (err, req, res, next) => {
     errors: error.errors,
   });
 };
+
+export default errorHandler;

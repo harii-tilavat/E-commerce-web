@@ -5,10 +5,10 @@
       "type": "node",
       "request": "launch",
       "name": "Run E-commerce-assignment",
-      "program": "${workspaceFolder}/app.js",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start-server"],
       "console": "integratedTerminal",
-      "restart": true,
-      "runtimeExecutable": "nodemon"
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
     },
     {
       "type": "node",

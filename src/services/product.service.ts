@@ -1,10 +1,13 @@
 import Product from '../models/mongo/product.js';
 import CommanService from './comman.service.js';
 
+type ProductInput = { title: string; price: number; description: string };
+type PaginationQuery = { limit?: unknown; offset?: unknown };
+
 class ProductService {
   constructor() {}
 
-  async createNewProduct(product, file, userId) {
+  async createNewProduct(product: ProductInput, file: Express.Multer.File | undefined, userId: string) {
     const { title, price, description } = product;
 
     const imageUrl = file?.path ?? null;
@@ -19,7 +22,7 @@ class ProductService {
     return createdProduct;
   }
 
-  async getAllProducts(options) {
+  async getAllProducts(options: PaginationQuery) {
     const { limit, offset } = CommanService.getPagination(options);
 
     const [products, total_count] = await Promise.all([
@@ -35,7 +38,7 @@ class ProductService {
     };
   }
 
-  async getUsersProducts(userId, options) {
+  async getUsersProducts(userId: string, options: PaginationQuery) {
     const { limit, offset } = CommanService.getPagination(options);
 
     const [products, total_count] = await Promise.all([

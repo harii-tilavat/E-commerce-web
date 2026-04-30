@@ -9,7 +9,7 @@ class CommanService {
     return crypto.randomBytes(32).toString('hex');
   }
 
-  static getPagination(query = {}, maxLimit = 50) {
+  static getPagination(query: { limit?: unknown; offset?: unknown } = {}, maxLimit = 50) {
     const limit = Number(query.limit) || maxLimit;
     const offset = Number(query.offset) || 0;
     if (limit > maxLimit) {

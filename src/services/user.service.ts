@@ -6,10 +6,12 @@ import { StatusCode } from '../utils/api-response.js';
 import { generateInvoicePdf } from '../utils/invoice-pdf.js';
 import CommanService from './comman.service.js';
 
+type PaginationQuery = { limit?: unknown; offset?: unknown };
+
 class UserService {
   constructor() {}
 
-  async addProductToCart(productId, userId) {
+  async addProductToCart(productId: string, userId: string) {
     const product = await Product.findById(productId);
     if (!product) {
       throw new ApiError(StatusCode.NOT_FOUND, 'Product not found');
@@ -23,16 +25,16 @@ class UserService {
     return CartItem.create({ userId, quantity: 1, productId });
   }
 
-  async getCartItems(userId) {
+  async getCartItems(userId: string) {
     return CartItem.find({ userId }).populate('productId');
   }
 
-  async incrementCartItem(productId, userId) {
+  async incrementCartItem(productId: string, userId: string) {
     const result = await CartItem.updateOne({ productId, userId }, { $inc: { quantity: 1 } });
     if (result.matchedCount === 0) throw new ApiError(StatusCode.NOT_FOUND, 'Cart item not found');
   }
 
-  async decrementCartItem(productId, userId) {
+  async decrementCartItem(productId: string, userId: string) {
     const item = await CartItem.findOne({ productId, userId });
     if (!item) throw new ApiError(StatusCode.NOT_FOUND, 'Cart item not found');
     if (item.quantity <= 1) {
@@ -43,16 +45,16 @@ class UserService {
     await item.save();
   }
 
-  async removeItemFromCart(productId, userId) {
+  async removeItemFromCart(productId: string, userId: string) {
     const result = await CartItem.deleteOne({ productId, userId });
     if (result.deletedCount === 0) throw new ApiError(StatusCode.NOT_FOUND, 'Cart item not found');
   }
 
-  async clearCart(userId) {
+  async clearCart(userId: string) {
     await CartItem.deleteMany({ userId });
   }
 
-  async getOrders(userId, options) {
+  async getOrders(userId: string, options: PaginationQuery) {
     const { limit, offset } = CommanService.getPagination(options);
 
     const [orders, total_count] = await Promise.all([
@@ -77,7 +79,7 @@ class UserService {
     };
   }
 
-  async createNewOrder(userId) {
+  async createNewOrder(userId: string) {
     const cartItems = await CartItem.find({ userId }).lean();
     if (!cartItems.length) throw new ApiError(StatusCode.BAD_REQUEST, 'Cart is empty');
     const order = await Order.create({
@@ -88,16 +90,16 @@ class UserService {
     return order;
   }
 
-  async getInvoice(orderId, userId) {
+  async getInvoice(orderId: string, userId?: string) {
     const order = await Order.findById(orderId).populate('items.productId').populate('userId', 'name email');
     if (!order) {
       throw new ApiError(StatusCode.NOT_FOUND, 'Order not found');
     }
-    if (userId && !order.userId._id.equals(userId)) {
+    if (userId && !(order.userId as { _id: { equals: (id: string) => boolean } })._id.equals(userId)) {
       throw new ApiError(StatusCode.FORBIDDEN, 'Not authorized to access this invoice');
     }
 
-    return generateInvoicePdf(order);
+    return generateInvoicePdf(order as never);
   }
 }
 

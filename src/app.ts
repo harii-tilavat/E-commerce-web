@@ -4,7 +4,7 @@ config();
 import express from 'express';
 import cors from 'cors';
 
-import { connectDB } from './util/database.js';
+import { connectDB } from './config/database.js';
 import errorHandler from './middlewares/error-handler.js';
 import ApiError from './utils/api-error.js';
 import { StatusCode } from './utils/api-response.js';

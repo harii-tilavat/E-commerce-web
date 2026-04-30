@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const connectDB = async () => {
   const mongoUser = process.env.MONGO_USER;
-  const mongoPassword = encodeURIComponent(process.env.MONGO_PASSWORD);
+  const mongoPassword = encodeURIComponent(process.env.MONGO_PASSWORD ?? '');
   const mongoCluster = process.env.MONGO_CLUSTER;
   const mongoDb = process.env.MONGO_DB;
   const mongoAppName = process.env.MONGO_APP_NAME;

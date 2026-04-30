@@ -8,7 +8,7 @@ import { StatusCode } from '../utils/api-response.js';
 class AuthService {
   constructor() {}
 
-  async signupUser(name, email, password) {
+  async signupUser(name: string, email: string, password: string) {
     const existing = await User.findOne({ email });
     if (existing) {
       throw new ApiError(StatusCode.CONFLICT, 'Email already registered');
@@ -22,7 +22,7 @@ class AuthService {
     };
   }
 
-  async loginUser(email, password) {
+  async loginUser(email: string, password: string) {
     const user = await User.findOne({ email });
     if (!user) {
       throw new ApiError(StatusCode.UNAUTHORIZED, 'Invalid email or password');
@@ -45,27 +45,27 @@ class AuthService {
     };
   }
 
-  async resetPassword(email) {
+  async resetPassword(email: string) {
     const user = await User.findOne({ email });
     if (!user) {
       throw new ApiError(StatusCode.NOT_FOUND, 'User not found');
     }
     const token = CommanService.generateRandomToken();
     user.resetToken = token;
-    user.resetTokenExpiration = Date.now() + 3600000;
+    user.resetTokenExpiration = new Date(Date.now() + 3600000);
     await user.save();
     console.log('RESET TOKEN : ', token);
     return { resetToken: token };
   }
 
-  async getResetUser(token) {
+  async getResetUser(token: string) {
     return User.findOne({
       resetToken: token,
       resetTokenExpiration: { $gt: Date.now() },
     });
   }
 
-  async updatePassword(userId, token, newPassword) {
+  async updatePassword(userId: string, token: string, newPassword: string) {
     const user = await User.findOne({
       _id: userId,
       resetToken: token,

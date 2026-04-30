@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const deleteFile = (path) => {
+const deleteFile = (path: string) => {
   fs.unlink(path, (err) => {
     if (err) throw err;
   });

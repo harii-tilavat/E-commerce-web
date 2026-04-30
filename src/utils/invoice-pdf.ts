@@ -1,13 +1,23 @@
 import fs from 'fs';
 import path from 'path';
 import PDFDocument from 'pdfkit';
-import rootDir from '../util/path.js';
+import rootDir from './path.js';
 
-const formatCurrency = (n) => `$${n.toFixed(2)}`;
-const formatDate = (d) =>
+type InvoiceOrder = {
+  _id: unknown;
+  createdAt: Date | string;
+  userId?: { name?: string; email?: string };
+  items: Array<{
+    quantity: number;
+    productId?: { title?: string; price?: number };
+  }>;
+};
+
+const formatCurrency = (n: number) => `$${n.toFixed(2)}`;
+const formatDate = (d: Date | string) =>
   new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-function buildLineItems(order) {
+function buildLineItems(order: InvoiceOrder) {
   const lineItems = order.items.map((i) => {
     const unitPrice = i.productId?.price ?? 0;
     const lineTotal = unitPrice * i.quantity;
@@ -22,7 +32,7 @@ function buildLineItems(order) {
   return { lineItems, grandTotal };
 }
 
-function generateInvoicePdf(order) {
+function generateInvoicePdf(order: InvoiceOrder) {
   const { lineItems, grandTotal } = buildLineItems(order);
 
   const fileName = `invoice-${order._id}.pdf`;

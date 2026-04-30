@@ -1,8 +1,9 @@
+import type { Request, Response, NextFunction } from 'express';
 import JwtHelperService from '../services/jwt-helper.service.js';
 import ApiError from '../utils/api-error.js';
 import { StatusCode } from '../utils/api-response.js';
 
-const requireAuth = (req, res, next) => {
+const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   const header = req.headers.authorization;
   if (!header?.startsWith('Bearer ')) {
     return next(new ApiError(StatusCode.UNAUTHORIZED, 'Missing or invalid Authorization header'));

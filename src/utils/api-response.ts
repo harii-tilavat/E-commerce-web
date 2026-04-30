@@ -1,3 +1,5 @@
+import type { Response } from 'express';
+
 const StatusCode = Object.freeze({
   OK: 200,
   CREATED: 201,
@@ -18,7 +20,7 @@ const StatusCode = Object.freeze({
 });
 
 class ApiResponse {
-  static send(res, statusCode, message, data = null) {
+  static send(res: Response, statusCode: number, message: string, data: unknown = null) {
     return res.status(statusCode).json({
       success: true,
       statusCode,
@@ -27,15 +29,15 @@ class ApiResponse {
     });
   }
 
-  static ok(res, message = 'Success', data = null) {
+  static ok(res: Response, message = 'Success', data: unknown = null) {
     return this.send(res, StatusCode.OK, message, data);
   }
 
-  static created(res, message = 'Created', data = null) {
+  static created(res: Response, message = 'Created', data: unknown = null) {
     return this.send(res, StatusCode.CREATED, message, data);
   }
 
-  static noContent(res) {
+  static noContent(res: Response) {
     return res.status(StatusCode.NO_CONTENT).end();
   }
 }
