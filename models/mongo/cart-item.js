@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose');
+import { Schema, model } from 'mongoose';
 
 const cartItemSchema = new Schema({
   userId: {
@@ -17,4 +17,4 @@ const cartItemSchema = new Schema({
   },
 });
 
-module.exports = model('CartItem', cartItemSchema);
+export default model('CartItem', cartItemSchema);

@@ -1,5 +1,5 @@
-const { z } = require('zod');
-const { objectId } = require('./comman.validation');
+import { z } from 'zod';
+import { objectId } from './comman.validation.js';
 
 const createProductSchema = z.object({
   title: z.string().min(3),
@@ -22,7 +22,7 @@ const productIdParamId = z.object({
   id: objectId,
 });
 
-module.exports = {
+export {
   createProductSchema,
   updateProductSchema,
   productIdParam,

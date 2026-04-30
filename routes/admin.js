@@ -1,11 +1,11 @@
-const express = require('express');
+import express from 'express';
 
-const requireAuth = require('../middlewares/auth.middleware');
-const validate = require('../middlewares/validate.middleware');
-const asyncHandler = require('../middlewares/async-handler');
-const { createProductSchema, updateProductSchema, productIdParamId } = require('../validations/product.validation');
-const AdminController = require('../controllers/admin');
-const upload = require('../middlewares/upload');
+import requireAuth from '../middlewares/auth.middleware.js';
+import validate from '../middlewares/validate.middleware.js';
+import asyncHandler from '../middlewares/async-handler.js';
+import { createProductSchema, updateProductSchema, productIdParamId } from '../validations/product.validation.js';
+import AdminController from '../controllers/admin.js';
+import upload from '../middlewares/upload.js';
 
 const router = express.Router();
 
@@ -31,4 +31,4 @@ router.patch(
 
 router.delete('/products/:id', validate({ params: productIdParamId }), asyncHandler(adminController.deleteProduct));
 
-module.exports = router;
+export default router;

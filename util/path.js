@@ -1,4 +1,7 @@
-const path = require('path');
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const rootDir = path.dirname(require.main.filename);
-module.exports = rootDir;
+const __filename = fileURLToPath(import.meta.url);
+const rootDir = path.dirname(path.dirname(__filename));
+
+export default rootDir;

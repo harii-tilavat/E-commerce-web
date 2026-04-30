@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
-const ApiError = require('../utils/api-error');
-const { StatusCode } = require('../utils/api-response');
+import jwt from 'jsonwebtoken';
+import ApiError from '../utils/api-error.js';
+import { StatusCode } from '../utils/api-response.js';
 
 class JwtHelperService {
   constructor() {}
@@ -18,4 +18,4 @@ class JwtHelperService {
   }
 }
 
-module.exports = JwtHelperService;
+export default JwtHelperService;

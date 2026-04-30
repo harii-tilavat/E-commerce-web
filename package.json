@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Complete Node.js Guide",
   "main": "app.js",
+  "type": "module",
   "scripts": {
     "test": "NODE_ENV=test JWT_SECRET=jwt_secret mocha --recursive",
     "start": "nodemon app.js",

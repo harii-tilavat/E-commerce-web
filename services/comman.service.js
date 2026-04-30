@@ -1,6 +1,6 @@
-const crypto = require('crypto');
-const ApiError = require('../utils/api-error');
-const { StatusCode } = require('../utils/api-response');
+import crypto from 'crypto';
+import ApiError from '../utils/api-error.js';
+import { StatusCode } from '../utils/api-response.js';
 
 class CommanService {
   constructor() {}
@@ -19,4 +19,4 @@ class CommanService {
   }
 }
 
-module.exports = CommanService;
+export default CommanService;

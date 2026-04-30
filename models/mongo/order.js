@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose');
+import { Schema, model } from 'mongoose';
 
 const orderItemSchema = new Schema(
   {
@@ -32,4 +32,4 @@ const orderSchema = new Schema(
   { timestamps: true, toObject: { virtuals: true }, toJSON: { virtuals: true } },
 );
 
-module.exports = model('Order', orderSchema);
+export default model('Order', orderSchema);

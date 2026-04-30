@@ -1,5 +1,5 @@
-const { z } = require('zod');
-const { objectId } = require('./comman.validation');
+import { z } from 'zod';
+import { objectId } from './comman.validation.js';
 
 const addToCartSchema = z.object({
   productId: objectId,
@@ -13,7 +13,7 @@ const updateCartSchema = z.object({
   action: z.enum(['inc', 'dec']),
 });
 
-module.exports = {
+export {
   addToCartSchema,
   cartProductIdParam,
   updateCartSchema,

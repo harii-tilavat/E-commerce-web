@@ -1,6 +1,6 @@
-const multer = require('multer');
-const ApiError = require('../utils/api-error');
-const { StatusCode } = require('../utils/api-response');
+import multer from 'multer';
+import ApiError from '../utils/api-error.js';
+import { StatusCode } from '../utils/api-response.js';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -22,4 +22,4 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter });
 
-module.exports = upload;
+export default upload;

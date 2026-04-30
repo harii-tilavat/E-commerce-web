@@ -1,11 +1,11 @@
-const express = require('express');
+import express from 'express';
 
-const requireAuth = require('../middlewares/auth.middleware');
-const validate = require('../middlewares/validate.middleware');
-const asyncHandler = require('../middlewares/async-handler');
-const { productIdParamId } = require('../validations/product.validation');
-const { addToCartSchema, cartProductIdParam, updateCartSchema } = require('../validations/cart.validation');
-const ShopController = require('../controllers/shop');
+import requireAuth from '../middlewares/auth.middleware.js';
+import validate from '../middlewares/validate.middleware.js';
+import asyncHandler from '../middlewares/async-handler.js';
+import { productIdParamId } from '../validations/product.validation.js';
+import { addToCartSchema, cartProductIdParam, updateCartSchema } from '../validations/cart.validation.js';
+import ShopController from '../controllers/shop.js';
 
 const router = express.Router();
 
@@ -39,4 +39,4 @@ router.get('/orders/:id/invoice', requireAuth, asyncHandler(shopController.getIn
 
 router.post('/orders', requireAuth, asyncHandler(shopController.createOrder));
 
-module.exports = router;
+export default router;

@@ -1,7 +1,7 @@
-const fs = require('fs');
-const path = require('path');
-const PDFDocument = require('pdfkit');
-const rootDir = require('../util/path');
+import fs from 'fs';
+import path from 'path';
+import PDFDocument from 'pdfkit';
+import rootDir from '../util/path.js';
 
 const formatCurrency = (n) => `$${n.toFixed(2)}`;
 const formatDate = (d) =>
@@ -104,4 +104,4 @@ function generateInvoicePdf(order) {
   return { doc, fileName };
 }
 
-module.exports = { generateInvoicePdf };
+export { generateInvoicePdf };

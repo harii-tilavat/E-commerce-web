@@ -1,7 +1,7 @@
-const Product = require('../models/mongo/product');
-const { ApiResponse, StatusCode } = require('../utils/api-response');
-const ApiError = require('../utils/api-error');
-const ProductService = require('../services/product.service');
+import Product from '../models/mongo/product.js';
+import { ApiResponse, StatusCode } from '../utils/api-response.js';
+import ApiError from '../utils/api-error.js';
+import ProductService from '../services/product.service.js';
 
 class AdminController {
   constructor() {
@@ -34,4 +34,4 @@ class AdminController {
   };
 }
 
-module.exports = AdminController;
+export default AdminController;

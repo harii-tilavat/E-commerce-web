@@ -1,5 +1,5 @@
-const ApiError = require('../utils/api-error');
-const { StatusCode } = require('../utils/api-response');
+import ApiError from '../utils/api-error.js';
+import { StatusCode } from '../utils/api-response.js';
 
 const validate = (schemas) => (req, res, next) => {
   try {
@@ -23,4 +23,4 @@ const validate = (schemas) => (req, res, next) => {
   }
 };
 
-module.exports = validate;
+export default validate;

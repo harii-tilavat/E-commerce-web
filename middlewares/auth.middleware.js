@@ -1,6 +1,6 @@
-const JwtHelperService = require('../services/jwt-helper.service');
-const ApiError = require('../utils/api-error');
-const { StatusCode } = require('../utils/api-response');
+import JwtHelperService from '../services/jwt-helper.service.js';
+import ApiError from '../utils/api-error.js';
+import { StatusCode } from '../utils/api-response.js';
 
 const requireAuth = (req, res, next) => {
   const header = req.headers.authorization;
@@ -16,4 +16,4 @@ const requireAuth = (req, res, next) => {
   }
 };
 
-module.exports = requireAuth;
+export default requireAuth;

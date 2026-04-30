@@ -1,8 +1,8 @@
-const Product = require('../models/mongo/product');
-const UserService = require('../services/user.service');
-const { ApiResponse, StatusCode } = require('../utils/api-response');
-const ApiError = require('../utils/api-error');
-const ProductService = require('../services/product.service');
+import Product from '../models/mongo/product.js';
+import UserService from '../services/user.service.js';
+import { ApiResponse, StatusCode } from '../utils/api-response.js';
+import ApiError from '../utils/api-error.js';
+import ProductService from '../services/product.service.js';
 
 class ShopController {
   constructor() {
@@ -67,4 +67,4 @@ class ShopController {
   };
 }
 
-module.exports = ShopController;
+export default ShopController;

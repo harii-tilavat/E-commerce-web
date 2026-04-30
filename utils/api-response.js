@@ -40,4 +40,4 @@ class ApiResponse {
   }
 }
 
-module.exports = { ApiResponse, StatusCode };
+export { ApiResponse, StatusCode };

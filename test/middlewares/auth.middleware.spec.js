@@ -1,9 +1,9 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
+import { expect } from 'chai';
+import sinon from 'sinon';
 
-const { StatusCode } = require('../../utils/api-response');
-const JwtHelperService = require('../../services/jwt-helper.service');
-const requireAuth = require('../../middlewares/auth.middleware');
+import { StatusCode } from '../../utils/api-response.js';
+import JwtHelperService from '../../services/jwt-helper.service.js';
+import requireAuth from '../../middlewares/auth.middleware.js';
 
 describe('Auth middleware', () => {
   it('should throw an error if no autorization header is present', () => {

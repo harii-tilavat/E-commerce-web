@@ -1,16 +1,17 @@
-require('dotenv').config();
+import { config } from 'dotenv';
+config();
 
-const express = require('express');
-const cors = require('cors');
+import express from 'express';
+import cors from 'cors';
 
-const { connectDB } = require('./util/database');
-const errorHandler = require('./middlewares/error-handler');
-const ApiError = require('./utils/api-error');
-const { StatusCode } = require('./utils/api-response');
+import { connectDB } from './util/database.js';
+import errorHandler from './middlewares/error-handler.js';
+import ApiError from './utils/api-error.js';
+import { StatusCode } from './utils/api-response.js';
 
-const authRoutes = require('./routes/auth');
-const adminRoutes = require('./routes/admin');
-const shopRoutes = require('./routes/shop');
+import authRoutes from './routes/auth.js';
+import adminRoutes from './routes/admin.js';
+import shopRoutes from './routes/shop.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;

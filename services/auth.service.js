@@ -1,9 +1,9 @@
-const bcrypt = require('bcryptjs');
-const User = require('../models/mongo/user');
-const CommanService = require('./comman.service');
-const JwtHelperService = require('./jwt-helper.service');
-const ApiError = require('../utils/api-error');
-const { StatusCode } = require('../utils/api-response');
+import bcrypt from 'bcryptjs';
+import User from '../models/mongo/user.js';
+import CommanService from './comman.service.js';
+import JwtHelperService from './jwt-helper.service.js';
+import ApiError from '../utils/api-error.js';
+import { StatusCode } from '../utils/api-response.js';
 
 class AuthService {
   constructor() {}
@@ -81,4 +81,4 @@ class AuthService {
   }
 }
 
-module.exports = AuthService;
+export default AuthService;

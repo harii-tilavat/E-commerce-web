@@ -1,5 +1,5 @@
-const Product = require('../models/mongo/product');
-const CommanService = require('./comman.service');
+import Product from '../models/mongo/product.js';
+import CommanService from './comman.service.js';
 
 class ProductService {
   constructor() {}
@@ -52,4 +52,4 @@ class ProductService {
   }
 }
 
-module.exports = ProductService;
+export default ProductService;

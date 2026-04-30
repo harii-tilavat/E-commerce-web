@@ -1,5 +1,5 @@
-const AuthService = require('../services/auth.service');
-const { ApiResponse } = require('../utils/api-response');
+import AuthService from '../services/auth.service.js';
+import { ApiResponse } from '../utils/api-response.js';
 
 class AuthController {
   constructor() {
@@ -31,4 +31,4 @@ class AuthController {
   };
 }
 
-module.exports = AuthController;
+export default AuthController;

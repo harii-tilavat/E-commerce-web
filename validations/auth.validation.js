@@ -1,4 +1,4 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
 const signupSchema = z
   .object({
@@ -33,7 +33,7 @@ const newPasswordSchema = z
     path: ['confirmPassword'],
   });
 
-module.exports = {
+export {
   signupSchema,
   loginSchema,
   resetPasswordSchema,

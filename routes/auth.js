@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
 
-const validate = require('../middlewares/validate.middleware');
-const asyncHandler = require('../middlewares/async-handler');
-const { signupSchema, loginSchema, resetPasswordSchema, newPasswordSchema } = require('../validations/auth.validation');
-const AuthController = require('../controllers/auth');
+import validate from '../middlewares/validate.middleware.js';
+import asyncHandler from '../middlewares/async-handler.js';
+import { signupSchema, loginSchema, resetPasswordSchema, newPasswordSchema } from '../validations/auth.validation.js';
+import AuthController from '../controllers/auth.js';
 
 const router = express.Router();
 
@@ -17,4 +17,4 @@ router.post('/reset-password', validate({ body: resetPasswordSchema }), asyncHan
 
 router.post('/new-password', validate({ body: newPasswordSchema }), asyncHandler(authController.newPassword));
 
-module.exports = router;
+export default router;
